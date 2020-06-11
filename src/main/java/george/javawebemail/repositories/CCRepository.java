@@ -14,9 +14,7 @@ import george.javawebemail.Entities.CC;
 import java.util.List;
 import java.util.Optional;
 
-
 @Repository
-@Component
 public interface CCRepository extends CrudRepository<CC, Long> {
 
     public List<CC> findAllById(Long id);
@@ -25,8 +23,6 @@ public interface CCRepository extends CrudRepository<CC, Long> {
 
     public CC save(CC entity);
 
-    public CC merge(CC entityToMerge);
-
-    public void delete(Long id);
+    public void delete(CC entityToDelete);
 
 }

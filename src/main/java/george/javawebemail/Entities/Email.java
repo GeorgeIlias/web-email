@@ -5,7 +5,6 @@
  */
 package george.javawebemail.Entities;
 
-import java.util.HashMap;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -16,18 +15,15 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 
 import org.hibernate.annotations.Type;
-import org.springframework.stereotype.Component;
 
 import lombok.Data;
 
@@ -35,7 +31,6 @@ import lombok.Data;
 @Entity
 @Table(name = "emails")
 @JsonFilter("emailFilter")
-@Component
 public class Email {
 
         @Id
@@ -70,7 +65,8 @@ public class Email {
         private List<Attachment> attachmentList;
 
         @ManyToOne
-        @JoinColumn(name = "emailUserTable")
+        @JoinColumns({ @JoinColumn(name = "emailUserTableId", referencedColumnName = "embedded_id_users"),
+                        @JoinColumn(name = "emailUserTableUsername", referencedColumnName = "userName") })
         private User userSent;
 
         public Email(Long id, String sender, String subject, List<Receivers> receiverList, List<CC> ccEmailsList,
@@ -98,31 +94,4 @@ public class Email {
 
         public Email() {
         }
-
-        public void fromMapToObject(HashMap<String, Object> propertyMap) {
-
-                this.attachmentList = new ObjectMapper().convertValue(
-                                new Gson().toJson(propertyMap.getOrDefault("attachmentList", null)),
-                                new TypeReference<List<Attachment>>() {
-                                });
-                this.bccEmailsList = new ObjectMapper().convertValue(
-                                new Gson().toJson(propertyMap.getOrDefault("bccEmailsList", null)),
-                                new TypeReference<List<BCC>>() {
-                                });
-                this.ccEmailsList = new ObjectMapper().convertValue(
-                                new Gson().toJson(propertyMap.getOrDefault("ccEmailsList", null)),
-                                new TypeReference<List<CC>>() {
-                                });
-                this.receiversList = new ObjectMapper().convertValue(
-                                new Gson().toJson(propertyMap.getOrDefault("receiversList", null)),
-                                new TypeReference<List<Receivers>>() {
-                                });
-                this.sender = this.subject = propertyMap.getOrDefault("subject", null).toString();
-                this.text = propertyMap.getOrDefault("text", null).toString();
-                this.userSent = new ObjectMapper().convertValue(
-                                new Gson().toJson(propertyMap.getOrDefault("userSent", null)),
-                                new TypeReference<User>() {
-                                });
-        }
-
 }

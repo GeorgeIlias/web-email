@@ -1,13 +1,12 @@
 package george.javawebemail.Entities;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -17,25 +16,18 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 
-import org.springframework.stereotype.Component;
-
-import george.javawebemail.Utilities.PlainTextToHashUtil;
+import george.javawebemail.Entities.EmbeddableID.UserEmbeddableId;
 import lombok.Data;
 
 @Data
 @Entity
 @JsonFilter("userFilter")
 @Table(name = "users")
-@Component
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @EmbeddedId
+    private UserEmbeddableId embeddedId;
 
     @Column
     private String firstName;
@@ -53,9 +45,6 @@ public class User {
     private String passwordHash;
 
     @Column
-    private String username;
-
-    @Column
     private Date dateOfBirth;
 
     @Column
@@ -67,92 +56,67 @@ public class User {
     private List<Email> listOfEmails;
 
     public User(Long id, String firstName, String lastName, Date createdAt, Long portChosen, String passwordHash,
-            String username, Date dateOfBirth, List<EmailAccount> listOfGivenEmailAccounts,
+            String userName, Date dateOfBirth, List<EmailAccount> listOfGivenEmailAccounts,
             List<Email> listOfGivenEmails) {
-        this.id = id;
+        this.embeddedId = new UserEmbeddableId();
+        this.embeddedId.setId(id);
+        this.embeddedId.setUserName(userName);
         this.firstName = firstName;
         this.lastName = lastName;
         this.createdAt = createdAt;
         this.portChosen = portChosen;
         this.passwordHash = passwordHash;
-        this.username = username;
         this.dateOfBirth = dateOfBirth;
         this.listOfEmails = listOfGivenEmails;
         this.userEmailAccounts = listOfGivenEmailAccounts;
     }
 
     public User(Long id, String firstName, String lastName, Date createdAt, Long portChosen, String passwordHash,
-            String username, Date dateOfBirth, List<EmailAccount> listOfGivenEmailAccounts) {
-        this.id = id;
+            String userName, Date dateOfBirth, List<EmailAccount> listOfGivenEmailAccounts) {
+        this.embeddedId = new UserEmbeddableId();
+        this.embeddedId.setId(id);
+        this.embeddedId.setUserName(userName);
         this.firstName = firstName;
         this.lastName = lastName;
         this.createdAt = createdAt;
         this.portChosen = portChosen;
         this.passwordHash = passwordHash;
-        this.username = username;
         this.dateOfBirth = dateOfBirth;
         this.userEmailAccounts = listOfGivenEmailAccounts;
     }
 
     public User(String firstName, String lastName, Date createdAt, Long portChosen, String passwordHash,
-            String username, Date dateOfBirth, List<EmailAccount> listOfGivenEmailAccounts) {
+            String userName, Date dateOfBirth, List<EmailAccount> listOfGivenEmailAccounts) {
+        this.embeddedId = new UserEmbeddableId();
         this.firstName = firstName;
         this.lastName = lastName;
         this.createdAt = createdAt;
         this.portChosen = portChosen;
         this.passwordHash = passwordHash;
-        this.username = username;
         this.dateOfBirth = dateOfBirth;
         this.userEmailAccounts = listOfGivenEmailAccounts;
+        this.embeddedId.setUserName(userName);
 
     }
 
     public User(String firstName, String lastName, Date createdAt, long portChosen, String passwordHash,
-            String username, Date dateOfBirth) {
+            String userName, Date dateOfBirth) {
+        this.embeddedId = new UserEmbeddableId();
         this.firstName = firstName;
         this.lastName = lastName;
         this.createdAt = createdAt;
         this.portChosen = portChosen;
         this.passwordHash = passwordHash;
-        this.username = username;
         this.dateOfBirth = dateOfBirth;
+        this.embeddedId.setUserName(userName);
+        this.listOfEmails = new ArrayList<Email>();
+        this.userEmailAccounts = new ArrayList<EmailAccount>();
 
     }
 
     public User() {
-    }
-
-    /**
-     * need to complete this method to convert a map of string,object
-     * 
-     * @param propertyMap
-     * @author gIlias
-     */
-    public void fromMapToObject(HashMap<String, Object> propertyMap) {
-        try {
-            this.id = Long.parseLong(propertyMap.getOrDefault("id", null).toString());
-            SimpleDateFormat sdf = new SimpleDateFormat("DD/MM/YYYY");
-            this.createdAt = sdf.parse(propertyMap.get("createdAt").toString());
-            this.username = propertyMap.getOrDefault("username", null).toString();
-            this.firstName = propertyMap.getOrDefault("firstName", null).toString();
-            this.lastName = propertyMap.getOrDefault("lastName", null).toString();
-            this.portChosen = new Long(propertyMap.getOrDefault("portChosen", "25").toString());
-            this.listOfEmails = new ObjectMapper().convertValue(
-                    new Gson().toJson(propertyMap.getOrDefault("listOfEmails", null)),
-                    new TypeReference<List<Email>>() {
-                    });
-            this.id = new Long(propertyMap.getOrDefault("id", null).toString());
-            this.passwordHash = PlainTextToHashUtil.addSaltAndConvert(propertyMap.get("passwordUnHash").toString());
-            this.dateOfBirth = sdf.parse(propertyMap.get("dateOfBirth").toString());
-            this.userEmailAccounts = new ObjectMapper().convertValue(
-                    new Gson().toJson(propertyMap.getOrDefault("userEmailAccounts", null).toString()),
-                    new TypeReference<List<EmailAccount>>() {
-                    });
-        } catch (ParseException a) {
-            a.printStackTrace();
-        } catch (Exception b) {
-            b.printStackTrace();
-        }
-
+        this.embeddedId = new UserEmbeddableId();
+        this.listOfEmails = new ArrayList<Email>();
+        this.userEmailAccounts = new ArrayList<EmailAccount>();
     }
 }

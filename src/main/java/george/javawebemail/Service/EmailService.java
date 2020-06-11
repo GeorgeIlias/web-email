@@ -50,14 +50,4 @@ public class EmailService implements IEmailService {
         return emailRepoObject.findById(emailId).get();
     }
 
-    /**
-     * method to find merge a given entity
-     * 
-     * @param entityToMerge
-     * @author gIlias
-     */
-    public Email merge(Email entityToMerge) {
-        return emailRepoObject.merge(entityToMerge);
-    }
-
 }

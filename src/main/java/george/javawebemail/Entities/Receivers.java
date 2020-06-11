@@ -7,13 +7,6 @@ package george.javawebemail.Entities;
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-
-import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
 
 import lombok.Data;
 
@@ -21,7 +14,6 @@ import lombok.Data;
 @Entity
 @Table(name = "receivers")
 @JsonFilter(value = "receiversFilter")
-@Component
 public class Receivers {
 
     @Id
@@ -47,14 +39,6 @@ public class Receivers {
     }
 
     public Receivers() {
-    }
-
-    public void fromMapToObject(HashMap<String, Object> propertyMap) {
-        this.id = Long.parseLong(propertyMap.getOrDefault("id", null).toString());
-        this.receiver = propertyMap.getOrDefault("receiver", null).toString();
-        this.emails = new ObjectMapper().convertValue(
-                new Gson().toJson(propertyMap.getOrDefault(("listOfEmails"), null)), new TypeReference<Email>() {
-                });
     }
 
 }

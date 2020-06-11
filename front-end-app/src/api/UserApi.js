@@ -63,7 +63,7 @@ export async function callLogin( userName, passwordToBeHashed ) {
 export async function callRegister( hashMapOfItems ) {
     var itemToReturn
     const config = {
-        method: 'post',
+        method: 'put',
         url: 'http://localhost:8080/api/user/createUser',
         data: hashMapOfItems
     }

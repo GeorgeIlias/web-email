@@ -6,13 +6,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-
-import org.springframework.stereotype.Component;
 
 import lombok.Data;
 
@@ -20,7 +19,6 @@ import lombok.Data;
 @Table(name = "emailAccounts")
 @Entity
 @JsonFilter(value = "emailAccountFilter")
-@Component
 public class EmailAccount {
 
     @Id
@@ -34,7 +32,8 @@ public class EmailAccount {
     private String emailPasswordHash;
 
     @ManyToOne
-    @JoinColumn(name = "userEmailAccounts")
+    @JoinColumns({ @JoinColumn(name = "userEmailAccountsId", referencedColumnName = "embedded_id_users"),
+            @JoinColumn(name = "userEmailAccountsUserName", referencedColumnName = "userName") })
     private User userEmailAccounts;
 
     public EmailAccount(Long id, String userPasswordHash, String emailPasswordHash, User userGiven) {
@@ -60,9 +59,4 @@ public class EmailAccount {
         this.emailPasswordHash = propertyMap.getOrDefault("emailPasswordHash", null).toString();
 
     }
-
-    public void fromMapToObjectNoHash(HashMap<String, Object> propertyMap) {
-
-    }
-
 }

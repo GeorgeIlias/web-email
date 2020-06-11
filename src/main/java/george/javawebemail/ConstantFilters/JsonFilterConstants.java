@@ -80,4 +80,7 @@ public class JsonFilterConstants {
 
         public final static HashSet<String> EMAILACCOUNTS_OPTIONAL_PROPERTIES = new HashSet<String>(
                         Arrays.asList("emailAccount", "emailPasswordHash", "userGiven"));
+
+        // Arrays/sets of the user's embedded id
+        public final static HashSet<String> USER_EMBEDDED = new HashSet<String>(Arrays.asList("id", "userName"));
 }

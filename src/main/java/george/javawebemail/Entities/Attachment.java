@@ -17,7 +17,6 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 
-import org.springframework.stereotype.Component;
 
 import lombok.Data;
 
@@ -25,7 +24,6 @@ import lombok.Data;
 @Entity
 @Table(name = "Attachment")
 @JsonFilter("attachmentFilter")
-@Component
 public class Attachment {
 
     @Id

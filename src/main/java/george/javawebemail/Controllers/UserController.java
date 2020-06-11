@@ -4,6 +4,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +34,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @CrossOrigin
 public class UserController {
 
+    @Autowired
     private UserService userServiceObject;
 
     /**
@@ -39,21 +44,29 @@ public class UserController {
      * @return
      * @author gIlias
      */
+    // TODO fix the save method
     @RequestMapping(value = "/createUser", method = RequestMethod.PUT)
     @ResponseBody
     public Response registerUser(@RequestBody HashMap<String, Object> userParameters) {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
         try {
             if (CurrentUser.currentLoggedOnUser == null) {
-                User userToRegister = new User();
-                userToRegister.fromMapToObject(userParameters);
-                User savedUser = userServiceObject.saveUser(userToRegister);
+                userParameters.put("portChosen", new String("25"));
+                // DateTimeFormatter dtf = DateTimeFormatter.ofPattern("DD/MM/YYYY");
+                // userParameters.put("createdAt", dtf.format(LocalDateTime.now()).toString());
+                String passwordHash = PlainTextToHashUtil
+                        .addSaltAndConvert(userParameters.get("passwordUnHash").toString());
+                userParameters.remove("passwordUnHash");
+                userParameters.put("passwordHash", passwordHash);
+                User userToRegister = new ObjectMapper().readValue(new Gson().toJson(userParameters), User.class);
+                User userToReturn = userServiceObject.saveUser(userToRegister);
                 HashMap<String, HashSet<String>> filterToAdd = new HashMap<String, HashSet<String>>();
                 filterToAdd.put("userFilter", JsonFilterConstants.USERS_REQUIRED_PROPERTIES);
                 filterToAdd.put("emailAccountFilter", JsonFilterConstants.EMAILACCOUNTS_ALL_PROPERTIES);
                 filterToAdd.put("emailFilter", JsonFilterConstants.EMAIL_REQUIRED_PROPERTIES);
-                String userString = BeanJsonTransformer.multipleObjectsToJsonStringWithFilters(savedUser, filterToAdd);
-                CurrentUser.currentLoggedOnUser = savedUser;
+                String userString = BeanJsonTransformer.multipleObjectsToJsonStringWithFilters(userToReturn,
+                        filterToAdd);
+                CurrentUser.currentLoggedOnUser = userToReturn;
                 return Response.status(Status.OK).entity(userString).type(MediaType.APPLICATION_JSON).build();
             } else {
                 returningHashMap.put("message",
@@ -138,32 +151,38 @@ public class UserController {
      * @param registrationList
      * @return
      */
-    @RequestMapping(value = "/registerRequest", method = RequestMethod.PUT)
-    @ResponseBody
-    public Response registerGivenUser(@RequestBody HashMap<String, Object> registrationList) {
-        HashMap<String, String> returningHashMap = new HashMap<String, String>();
-        try {
-            if (CurrentUser.currentLoggedOnUser != null) {
-                returningHashMap.put("message",
-                        "You are already logged in, please log out before you attempt to register a new user");
-                return Response.status(Status.INTERNAL_SERVER_ERROR).entity(returningHashMap)
-                        .type(MediaType.APPLICATION_JSON).build();
-            } else {
-                User userToRegister = new User();
-                userToRegister.fromMapToObject(registrationList);
-                User currentUserSaved = userServiceObject.saveUser(userToRegister);
-                String jsonData = BeanJsonTransformer.singleObjectToJsonStringWithFilters(currentUserSaved,
-                        "userFilter", JsonFilterConstants.USERS_OPTIONAL_LOGIN_PROPERTIES);
-                CurrentUser.currentLoggedOnUser = currentUserSaved;
-                return Response.status(200).entity(jsonData).type(MediaType.APPLICATION_JSON).build();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            returningHashMap.put("message", "Error when registering, please try again later");
-            return Response.status(Status.BAD_REQUEST).entity(returningHashMap).type(MediaType.APPLICATION_JSON)
-                    .build();
-        }
-    }
+    // @RequestMapping(value = "/registerRequest", method = RequestMethod.PUT)
+    // @ResponseBody
+    // public Response registerGivenUser(@RequestBody HashMap<String, Object>
+    // registrationList) {
+    // HashMap<String, String> returningHashMap = new HashMap<String, String>();
+    // try {
+    // if (CurrentUser.currentLoggedOnUser != null) {
+    // returningHashMap.put("message",
+    // "You are already logged in, please log out before you attempt to register a
+    // new user");
+    // return Response.status(Status.INTERNAL_SERVER_ERROR).entity(returningHashMap)
+    // .type(MediaType.APPLICATION_JSON).build();
+    // } else {
+    // User userToRegister = new User();
+    // userToRegister.fromMapToObject(registrationList);
+    // User currentUserSaved = userServiceObject.saveUser(userToRegister);
+    // String jsonData =
+    // BeanJsonTransformer.singleObjectToJsonStringWithFilters(currentUserSaved,
+    // "userFilter", JsonFilterConstants.USERS_OPTIONAL_LOGIN_PROPERTIES);
+    // CurrentUser.currentLoggedOnUser = currentUserSaved;
+    // return
+    // Response.status(200).entity(jsonData).type(MediaType.APPLICATION_JSON).build();
+    // }
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // returningHashMap.put("message", "Error when registering, please try again
+    // later");
+    // return
+    // Response.status(Status.BAD_REQUEST).entity(returningHashMap).type(MediaType.APPLICATION_JSON)
+    // .build();
+    // }
+    // }
 
     /**
      * method to return a message depending on if the logout was successful or not

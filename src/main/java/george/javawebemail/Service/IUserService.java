@@ -12,9 +12,7 @@ public interface IUserService {
 
     public User saveUser(User userToSave);
 
-    public void deleteUser(Long userId);
-
-    public User merge(User userToMerge);
+    public void deleteUser(User userEntity);
 
     public User findUserByUserNameAndPasswordHash(String username, String passwordHash);
 }

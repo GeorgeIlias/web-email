@@ -39,3 +39,11 @@
  display:block;
  font-size: 13px;
 }
+
+.success-div{
+    border-style: double;
+    border-color:greenyellow;
+    border-width: 3px;
+    display:block;
+    font-size:13px;
+}

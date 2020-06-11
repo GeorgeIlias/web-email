@@ -6,7 +6,6 @@
 package george.javawebemail.repositories;
 
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import george.javawebemail.Entities.Email;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-@Component
 public interface EmailRepository extends CrudRepository<Email, Long> {
 
     public List<Email> findAllById(Long id);
@@ -23,8 +21,6 @@ public interface EmailRepository extends CrudRepository<Email, Long> {
 
     public Email save(Email entityToSave);
 
-    public Email merge(Email entityToMerge);
-
-    public void delete(Long id);
+    public void delete(Email id);
 
 }

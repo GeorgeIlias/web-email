@@ -21,5 +21,4 @@ public interface IEmailService {
 
     public Email findById(Long emailId);
 
-    public Email merge(Email entityToMerge);
 }

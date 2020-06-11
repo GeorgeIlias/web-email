@@ -7,20 +7,13 @@ package george.javawebemail.Entities;
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-
-import org.springframework.stereotype.Component;
 
 import lombok.Data;
-import java.util.HashMap;
 
 @Data
 @Entity
 @Table(name = "bcc")
 @JsonFilter("BCCFilter")
-@Component
 public class BCC {
 
     @Id
@@ -47,13 +40,5 @@ public class BCC {
     }
 
     public BCC() {
-    }
-
-    public void fromHashToMap(HashMap<String, Object> propertyMap) {
-        this.id = Long.parseLong(propertyMap.getOrDefault("id", null).toString());
-        this.bccReceiver = propertyMap.getOrDefault("bccReceiver", null).toString();
-        this.bccEmails = new ObjectMapper().convertValue(new Gson().toJson(propertyMap.getOrDefault("bccEmail", null)),
-                new TypeReference<Email>() {
-                });
     }
 }

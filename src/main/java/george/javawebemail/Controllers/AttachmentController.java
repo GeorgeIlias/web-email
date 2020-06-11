@@ -24,13 +24,26 @@ public class AttachmentController {
 
     private AttachmentRepository attachmentRepository;
 
+    // TODO fix the find by id and get a given user, will probably be a weird query
+    // to get working
+
+    /**
+     * Method to get a given attachemnt based on it's id and the user that is
+     * currently logged into
+     * 
+     * @param attachmentId
+     * @return
+     * @author gIlias
+     */
     @RequestMapping(value = "/getAttachment", method = RequestMethod.GET)
     public Response findAttachmentById(@RequestParam Long attachmentId) {
         if (CurrentUser.currentLoggedOnUser != null) {
             try {
-                Attachment currentAttachment = attachmentRepository
-                        .findById(attachmentId, CurrentUser.currentLoggedOnUser.getId()).get();
+                // Attachment currentAttachment = attachmentRepository
+                // .findByIdAndUser(attachmentId,
+                // CurrentUser.currentLoggedOnUser.getId()).get();
 
+                Attachment currentAttachment = null;
                 HashMap<String, HashSet<String>> hashMapSet = new HashMap<String, HashSet<String>>();
                 hashMapSet.put("attachmentFilter", new HashSet<String>(JsonFilterConstants.ATTACHMENT_ALL_PROPERTIES));
                 hashMapSet.put("emailFilter", new HashSet<String>(JsonFilterConstants.EMAIL_ALL_PROPERTIES));

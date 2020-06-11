@@ -36,10 +36,6 @@ class App extends React.Component {
     }
   }
 
-  checkPlease = () => {
-   console.log(this.state.entry);
-  }
-
 
 
 
@@ -50,7 +46,6 @@ class App extends React.Component {
           <Navigation />
         </div>
         <div id="App" className="App">
-          <p>{this.checkPlease()}</p>
         </div>
 
       </div>

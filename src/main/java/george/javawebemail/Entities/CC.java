@@ -11,7 +11,6 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 
-import org.springframework.stereotype.Component;
 
 import lombok.Data;
 
@@ -19,7 +18,6 @@ import lombok.Data;
 @Entity
 @Table(name = "cc")
 @JsonFilter("CCFilter")
-@Component
 public class CC {
 
     @Id
@@ -45,5 +43,6 @@ public class CC {
     }
 
     public CC() {
+
     }
 }

@@ -4,12 +4,14 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import george.javawebemail.Entities.Email;
 import george.javawebemail.Entities.User;
 import george.javawebemail.repositories.UserRepository;
 
 @Service
+@Transactional
 public class UserService implements IUserService {
 
     @Autowired
@@ -18,7 +20,7 @@ public class UserService implements IUserService {
     @Override
     public List<Email> getAllEmails(Long userId) {
         try {
-            User currentUser = userRepoObject.findById(userId).get();
+            User currentUser = userRepoObject.findbyEmbdeedIdId(userId).get();
             if (currentUser == null) {
                 throw new NullPointerException();
             } else {
@@ -34,7 +36,7 @@ public class UserService implements IUserService {
     @Override
     public User findById(Long userId) {
         try {
-            User currentUser = userRepoObject.findById(userId).get();
+            User currentUser = userRepoObject.findbyEmbdeedIdId(userId).get();
             if (currentUser == null) {
                 throw new NullPointerException();
             } else {
@@ -51,13 +53,17 @@ public class UserService implements IUserService {
     public User saveUser(User userToSave) {
         try {
             return userRepoObject.save(userToSave);
+        } catch (NullPointerException npe) {
+            npe.printStackTrace();
+            throw npe;
         } catch (Exception e) {
+            e.printStackTrace();
             throw e;
         }
     }
 
     @Override
-    public void deleteUser(Long userId) {
+    public void deleteUser(User userId) {
         try {
             userRepoObject.delete(userId);
         } catch (Exception e) {
@@ -66,18 +72,10 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User merge(User userToMerge) {
-        try {
-            return userRepoObject.merge(userToMerge);
-        } catch (Exception e) {
-            throw e;
-        }
-    }
-
-    @Override
     public User findUserByUserNameAndPasswordHash(String username, String passwordHash) {
         try {
-            User currentUser = userRepoObject.findUserByUserNameAndPasswordHash(username, passwordHash).get();
+            User currentUser = null;// userRepoObject.findUserByUserNameAndPasswordHash(username,
+                                    // passwordHash).get();
             if (currentUser == null) {
                 return null;
             } else {
