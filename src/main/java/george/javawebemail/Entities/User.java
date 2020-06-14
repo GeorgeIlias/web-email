@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -14,10 +13,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 
-import george.javawebemail.Entities.EmbeddableID.UserEmbeddableId;
 import lombok.Data;
 
 @Data
@@ -26,8 +25,13 @@ import lombok.Data;
 @Table(name = "users")
 public class User {
 
-    @EmbeddedId
-    private UserEmbeddableId embeddedId;
+    @Id
+    @NotNull
+    private String userName;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column
     private String firstName;
@@ -58,9 +62,8 @@ public class User {
     public User(Long id, String firstName, String lastName, Date createdAt, Long portChosen, String passwordHash,
             String userName, Date dateOfBirth, List<EmailAccount> listOfGivenEmailAccounts,
             List<Email> listOfGivenEmails) {
-        this.embeddedId = new UserEmbeddableId();
-        this.embeddedId.setId(id);
-        this.embeddedId.setUserName(userName);
+        this.setId(id);
+        this.setUserName(userName);
         this.firstName = firstName;
         this.lastName = lastName;
         this.createdAt = createdAt;
@@ -73,9 +76,8 @@ public class User {
 
     public User(Long id, String firstName, String lastName, Date createdAt, Long portChosen, String passwordHash,
             String userName, Date dateOfBirth, List<EmailAccount> listOfGivenEmailAccounts) {
-        this.embeddedId = new UserEmbeddableId();
-        this.embeddedId.setId(id);
-        this.embeddedId.setUserName(userName);
+        this.setId(id);
+        this.setUserName(userName);
         this.firstName = firstName;
         this.lastName = lastName;
         this.createdAt = createdAt;
@@ -87,7 +89,6 @@ public class User {
 
     public User(String firstName, String lastName, Date createdAt, Long portChosen, String passwordHash,
             String userName, Date dateOfBirth, List<EmailAccount> listOfGivenEmailAccounts) {
-        this.embeddedId = new UserEmbeddableId();
         this.firstName = firstName;
         this.lastName = lastName;
         this.createdAt = createdAt;
@@ -95,27 +96,25 @@ public class User {
         this.passwordHash = passwordHash;
         this.dateOfBirth = dateOfBirth;
         this.userEmailAccounts = listOfGivenEmailAccounts;
-        this.embeddedId.setUserName(userName);
+        this.setUserName(userName);
 
     }
 
     public User(String firstName, String lastName, Date createdAt, long portChosen, String passwordHash,
             String userName, Date dateOfBirth) {
-        this.embeddedId = new UserEmbeddableId();
         this.firstName = firstName;
         this.lastName = lastName;
         this.createdAt = createdAt;
         this.portChosen = portChosen;
         this.passwordHash = passwordHash;
         this.dateOfBirth = dateOfBirth;
-        this.embeddedId.setUserName(userName);
+        this.setUserName(userName);
         this.listOfEmails = new ArrayList<Email>();
         this.userEmailAccounts = new ArrayList<EmailAccount>();
 
     }
 
     public User() {
-        this.embeddedId = new UserEmbeddableId();
         this.listOfEmails = new ArrayList<Email>();
         this.userEmailAccounts = new ArrayList<EmailAccount>();
     }

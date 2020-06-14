@@ -31,9 +31,7 @@ public class UserEmbeddableId implements Serializable {
     @NotNull
     private String userName;
 
-    @NotNull
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "embedded_id_users")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     public UserEmbeddableId() {

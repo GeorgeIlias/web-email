@@ -65,7 +65,7 @@ public class Email {
         private List<Attachment> attachmentList;
 
         @ManyToOne
-        @JoinColumns({ @JoinColumn(name = "emailUserTableId", referencedColumnName = "embedded_id_users"),
+        @JoinColumns({ @JoinColumn(name = "emailUserTableId", referencedColumnName = "id"),
                         @JoinColumn(name = "emailUserTableUsername", referencedColumnName = "userName") })
         private User userSent;
 

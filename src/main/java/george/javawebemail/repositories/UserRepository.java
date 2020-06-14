@@ -21,7 +21,7 @@ public interface UserRepository extends CrudRepository<User, UserEmbeddableId> {
 
     // public List<User> findAllById(Long id);
 
-    @Query(value = "select * from User u where u.embedded_id_users = ?1 ", nativeQuery = true)
+    @Query(value = "select * from User u where u.id = ?1 ", nativeQuery = true)
     public Optional<User> findbyEmbdeedIdId(Long id);
 
     public List<User> findByEmbeddedId(UserEmbeddableId embeddedId);

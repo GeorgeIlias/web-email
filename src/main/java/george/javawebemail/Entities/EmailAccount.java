@@ -32,7 +32,7 @@ public class EmailAccount {
     private String emailPasswordHash;
 
     @ManyToOne
-    @JoinColumns({ @JoinColumn(name = "userEmailAccountsId", referencedColumnName = "embedded_id_users"),
+    @JoinColumns({ @JoinColumn(name = "userEmailAccountsId", referencedColumnName = "id"),
             @JoinColumn(name = "userEmailAccountsUserName", referencedColumnName = "userName") })
     private User userEmailAccounts;
 

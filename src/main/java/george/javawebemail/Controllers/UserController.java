@@ -44,7 +44,6 @@ public class UserController {
      * @return
      * @author gIlias
      */
-    // TODO fix the save method
     @RequestMapping(value = "/createUser", method = RequestMethod.PUT)
     @ResponseBody
     public Response registerUser(@RequestBody HashMap<String, Object> userParameters) {
