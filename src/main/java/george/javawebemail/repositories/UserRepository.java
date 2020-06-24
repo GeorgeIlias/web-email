@@ -14,17 +14,16 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import george.javawebemail.Entities.User;
-import george.javawebemail.Entities.EmbeddableID.UserEmbeddableId;
 
 @Repository
-public interface UserRepository extends CrudRepository<User, UserEmbeddableId> {
+public interface UserRepository extends CrudRepository<User, Long> {
 
     // public List<User> findAllById(Long id);
 
     @Query(value = "select * from User u where u.id = ?1 ", nativeQuery = true)
     public Optional<User> findbyEmbdeedIdId(Long id);
 
-    public List<User> findByEmbeddedId(UserEmbeddableId embeddedId);
+    public Optional<User> findById(Long id);
 
     public void delete(User entityToDelete);
 

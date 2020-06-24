@@ -32,8 +32,7 @@ public class EmailAccount {
     private String emailPasswordHash;
 
     @ManyToOne
-    @JoinColumns({ @JoinColumn(name = "userEmailAccountsId", referencedColumnName = "id"),
-            @JoinColumn(name = "userEmailAccountsUserName", referencedColumnName = "userName") })
+    @JoinColumn(name = "userEmailAccountsId", referencedColumnName = "id")
     private User userEmailAccounts;
 
     public EmailAccount(Long id, String userPasswordHash, String emailPasswordHash, User userGiven) {

@@ -21,7 +21,7 @@ public interface CCRepository extends CrudRepository<CC, Long> {
 
     public Optional<CC> findById(Long id);
 
-    public CC save(CC entity);
+    public <S extends CC> S save(S entity);
 
     public void delete(CC entityToDelete);
 

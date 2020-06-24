@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -66,21 +67,26 @@ public class UserController {
                 String userString = BeanJsonTransformer.multipleObjectsToJsonStringWithFilters(userToReturn,
                         filterToAdd);
                 CurrentUser.currentLoggedOnUser = userToReturn;
-                return Response.status(Status.OK).entity(userString).type(MediaType.APPLICATION_JSON).build();
+                return Response.status(200).entity(userString).type(MediaType.APPLICATION_JSON).build();
             } else {
                 returningHashMap.put("message",
                         "The user is already logged in, please log out of this account to log into another");
-                return Response.status(Status.BAD_REQUEST).entity(returningHashMap).type(MediaType.APPLICATION_JSON)
-                        .build();
+                return Response.status(400).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
             }
 
         } catch (Exception e) {
+            if (e.getClass() == SQLIntegrityConstraintViolationException.class) {
+                returningHashMap.clear();
+                e.printStackTrace();
+                returningHashMap.put("message", "userName already in use please try again");
+                return Response.status(400).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
+            }
             e.printStackTrace();
         }
         returningHashMap.clear();
         returningHashMap.put("message",
                 "The user is already logged in, please log out of this account to log into another");
-        return Response.status(Status.BAD_REQUEST).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
+        return Response.status(400).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
 
     }
 
@@ -113,12 +119,11 @@ public class UserController {
                         String jsonData = BeanJsonTransformer.singleObjectToJsonStringWithFilters(userToReturn,
                                 "userFilter", JsonFilterConstants.USERS_OPTIONAL_LOGIN_PROPERTIES);
                         CurrentUser.currentLoggedOnUser = userToReturn;
-                        return Response.status(Status.ACCEPTED).entity(jsonData).build();
+                        return Response.status(202).entity(jsonData).build();
                     } else {
                         returningHashMap.put("message",
                                 "the username/password combination is incorrect, please try again");
-                        return Response.status(Status.BAD_REQUEST).entity(returningHashMap)
-                                .type(MediaType.APPLICATION_JSON).build();
+                        return Response.status(400).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
                     }
 
                 } else {
@@ -128,15 +133,13 @@ public class UserController {
             } catch (Exception e) {
                 e.printStackTrace();
                 returningHashMap.put("message", "Error when handling the login");
-                return Response.status(Status.BAD_REQUEST).entity(returningHashMap).type(MediaType.APPLICATION_JSON)
-                        .build();
+                return Response.status(400).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
             }
 
         } else {
             returningHashMap.put("message",
                     "The user is already logged on, please log out if you would like to log in to a different account");
-            return Response.status(Status.BAD_REQUEST).entity(returningHashMap).type(MediaType.APPLICATION_JSON)
-                    .build();
+            return Response.status(400).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
         }
 
     }
@@ -211,7 +214,7 @@ public class UserController {
     public Response getMethodName() {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
         returningHashMap.put("message", "so error routing works");
-        return Response.status(Status.OK).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
+        return Response.status(200).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
     }
 
 }

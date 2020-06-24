@@ -65,8 +65,7 @@ public class Email {
         private List<Attachment> attachmentList;
 
         @ManyToOne
-        @JoinColumns({ @JoinColumn(name = "emailUserTableId", referencedColumnName = "id"),
-                        @JoinColumn(name = "emailUserTableUsername", referencedColumnName = "userName") })
+        @JoinColumn(name = "emailUserTableId", referencedColumnName = "id")
         private User userSent;
 
         public Email(Long id, String sender, String subject, List<Receivers> receiverList, List<CC> ccEmailsList,

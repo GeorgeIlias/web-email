@@ -8,19 +8,7 @@ package george.javawebemail.Entities.EmbeddableID;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
-
-import lombok.Data;
-
-@Data
-@Embeddable
-@JsonFilter("userEmbeddedIdFilter")
 public class UserEmbeddableId implements Serializable {
 
     /**
@@ -28,10 +16,8 @@ public class UserEmbeddableId implements Serializable {
      */
     private static final long serialVersionUID = -492529989482046563L;
 
-    @NotNull
     private String userName;
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     public UserEmbeddableId() {
@@ -46,6 +32,22 @@ public class UserEmbeddableId implements Serializable {
     public UserEmbeddableId(String userName) {
         this.userName = userName;
 
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public Long getId() {
+        return this.id;
+    }
+
+    public String getUserName() {
+        return this.userName;
     }
 
 }
