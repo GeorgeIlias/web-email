@@ -2,6 +2,7 @@ package george.javawebemail.Utilities;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,7 +19,6 @@ public class BeanJsonTransformer {
             sfp.addFilter(filterName, SimpleBeanPropertyFilter.filterOutAllExcept(listOfFilterProperties));
             objMapper.setFilterProvider(sfp);
             String jsonData = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(objectToTurnToJson);
-            System.out.println(jsonData);
             return jsonData;
         } catch (Exception e) {
             e.printStackTrace();
@@ -35,13 +35,40 @@ public class BeanJsonTransformer {
                 sfp.addFilter(item.getKey(), SimpleBeanPropertyFilter.filterOutAllExcept(item.getValue()));
             }
             objMapper.setFilterProvider(sfp);
-            String jsonStringData = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(objectsToTurnToJson);
-            System.out.println(jsonStringData);
-            return jsonStringData;
+            return objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(objectsToTurnToJson);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * Method to make a list of objects into string versions of them so that they
+     * can be sent to the user
+     * 
+     * @author gIlias
+     * @param <T>
+     * @param listOfObjectsToReturn
+     * @param filterName
+     * @param listOfFilterProperties
+     * @return Object
+     */
+    public static <T extends Object> String ListSingleObjectToJsonStringWithFilters(List<T> listOfObjectsToReturn,
+            String filterName, HashSet<String> listOfFilterProperties) {
+        try {
+            String jsonToReturn = "";
+            for (T currentObjectToReturn : listOfObjectsToReturn) {
+                jsonToReturn += singleObjectToJsonStringWithFilters(currentObjectToReturn, filterName,
+                        listOfFilterProperties) + ",";
+            }
+            jsonToReturn.substring(0, jsonToReturn.length() - 2);
+
+            System.out.println(jsonToReturn);
+            return jsonToReturn;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }

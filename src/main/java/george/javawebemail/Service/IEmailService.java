@@ -10,6 +10,7 @@ package george.javawebemail.Service;
 import java.util.List;
 
 import george.javawebemail.Entities.Email;
+import george.javawebemail.Entities.User;
 
 public interface IEmailService {
 
@@ -20,5 +21,7 @@ public interface IEmailService {
     public void delete(Email entityToDelete);
 
     public Email findById(Long emailId);
+
+    public List<Email> findEmailsByEmailIdAndUser(Long id, User user);
 
 }

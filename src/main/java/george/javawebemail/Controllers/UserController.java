@@ -2,7 +2,6 @@ package george.javawebemail.Controllers;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
@@ -23,6 +22,7 @@ import george.javawebemail.Utilities.BeanJsonTransformer;
 import george.javawebemail.Utilities.CurrentUser;
 import george.javawebemail.Utilities.PlainTextToHashUtil;
 import george.javawebemail.ConstantFilters.JsonFilterConstants;
+import george.javawebemail.ConstantFilters.JsonFilterNameConstants;
 import george.javawebemail.Entities.User;
 import george.javawebemail.Service.UserService;
 
@@ -61,9 +61,12 @@ public class UserController {
                 User userToRegister = new ObjectMapper().readValue(new Gson().toJson(userParameters), User.class);
                 User userToReturn = userServiceObject.saveUser(userToRegister);
                 HashMap<String, HashSet<String>> filterToAdd = new HashMap<String, HashSet<String>>();
-                filterToAdd.put("userFilter", JsonFilterConstants.USERS_REQUIRED_PROPERTIES);
-                filterToAdd.put("emailAccountFilter", JsonFilterConstants.EMAILACCOUNTS_ALL_PROPERTIES);
-                filterToAdd.put("emailFilter", JsonFilterConstants.EMAIL_REQUIRED_PROPERTIES);
+                filterToAdd.put(JsonFilterNameConstants.USERS_FILTER_NAME,
+                        JsonFilterConstants.USERS_REQUIRED_PROPERTIES);
+                filterToAdd.put(JsonFilterNameConstants.EMAIL_ACCOUNT_FILTER_NAME,
+                        JsonFilterConstants.EMAILACCOUNTS_ALL_PROPERTIES);
+                filterToAdd.put(JsonFilterNameConstants.EMAIL_FILTER_NAME,
+                        JsonFilterConstants.EMAIL_REQUIRED_PROPERTIES);
                 String userString = BeanJsonTransformer.multipleObjectsToJsonStringWithFilters(userToReturn,
                         filterToAdd);
                 CurrentUser.currentLoggedOnUser = userToReturn;
@@ -211,10 +214,10 @@ public class UserController {
     }
 
     @GetMapping(value = "/error")
-    public Response getMethodName() {
+    public Response returnErrorForFiveHundred(String message) {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
-        returningHashMap.put("message", "so error routing works");
-        return Response.status(200).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
+        returningHashMap.put("message", "error: Routing ");
+        return Response.status(500).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
     }
 
 }

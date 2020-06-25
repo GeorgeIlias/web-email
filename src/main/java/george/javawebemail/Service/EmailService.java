@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import george.javawebemail.Entities.Email;
+import george.javawebemail.Entities.User;
 import george.javawebemail.repositories.EmailRepository;
 
 @Service
@@ -48,6 +49,16 @@ public class EmailService implements IEmailService {
     @Override
     public Email findById(Long emailId) {
         return emailRepoObject.findById(emailId).get();
+    }
+
+    @Override
+    public List<Email> findEmailsByEmailIdAndUser(Long id, User user) {
+        try {
+            return emailRepoObject.findAllByIdAndByUser(id, user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }
