@@ -61,10 +61,38 @@ public class BeanJsonTransformer {
                 jsonToReturn += singleObjectToJsonStringWithFilters(currentObjectToReturn, filterName,
                         listOfFilterProperties) + ",";
             }
-            jsonToReturn.substring(0, jsonToReturn.length() - 2);
+            String subbedJsonToReturn = jsonToReturn.substring(0, jsonToReturn.length() - 2);
 
-            System.out.println(jsonToReturn);
-            return jsonToReturn;
+            System.out.println(subbedJsonToReturn);
+            return subbedJsonToReturn;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Method to make a list of objects into string versions of themselves so that
+     * they can be sent to the user with a list of hashSet<String> of filters and
+     * properties
+     * 
+     * @author gIlias
+     * @param <T>
+     * @param listOfObjectsToReturn
+     * @param HashMapSetOfProperties
+     */
+    public static <T extends Object> String listMultipleObjectToJsonStringWithMultipleFilters(
+            List<T> listOfObjectsToReturn, HashMap<String, HashSet<String>> HashMapSetOfProperties) {
+        try {
+            String jsonToReturn = "";
+            for (T currentObjectFromList : listOfObjectsToReturn) {
+                jsonToReturn += BeanJsonTransformer.multipleObjectsToJsonStringWithFilters(currentObjectFromList,
+                        HashMapSetOfProperties);
+                jsonToReturn += ",";
+            }
+            String subbedJsonToReturn = jsonToReturn.substring(0, jsonToReturn.length() - 2);
+            System.out.println(subbedJsonToReturn);
+            return subbedJsonToReturn;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

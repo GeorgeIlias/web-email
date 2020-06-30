@@ -73,6 +73,9 @@ public class JsonFilterConstants {
         public final static HashSet<String> USERS_OPTIONAL_LOGIN_PROPERTIES = new HashSet<String>(Arrays.asList("id",
                         "firstName", "lastName", "createAd", "userName", "id", "dateOfBirth", "portChosen"));
 
+        public final static HashSet<String> USERS_OPTIONAL_UNIDENTIFIABLE_PROPERTIES = new HashSet<String>(
+                        Arrays.asList("userName"));
+
         // Arrays/ sets of the user properties that are required for many of the to be
         // created controller methods
         public final static HashSet<String> EMAILACCOUNTS_ALL_PROPERTIES = new HashSet<String>(
