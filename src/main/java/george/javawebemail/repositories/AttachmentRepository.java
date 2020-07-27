@@ -13,13 +13,17 @@ import george.javawebemail.Entities.Attachment;
 
 public interface AttachmentRepository extends CrudRepository<Attachment, Long> {
 
-    // @Query("select a from Attachment a where a.attachedTable.emailUserTable.id= :userId")
-    // public Iterable<Attachment> findAll(@Param("userId") Long userId);
+    @Query(value = "select * from Attachment a where a.attachedTable.emailUserTable.id= :userId", nativeQuery = true)
+    public Iterable<Attachment> findAll(@Param("userId") Long userId);
 
-    // @Query("select a from Attachment a where a.id = :id and a.attachedTable.emailUserTable.id=:userId")
-    // public Optional<Attachment> findByIdAndUser(@Param("id") Long id, @Param("userId") Long userId);
+    // @Query("select a from Attachment a where a.id = :id and
+    // a.attachedTable.emailUserTable.id=:userId")
+    // public Optional<Attachment> findByIdAndUser(@Param("id") Long id,
+    // @Param("userId") Long userId);
 
     public Optional<Attachment> findById(Long id);
+
+    public Optional<Attachment> findByIdAndUserId(Long id, Long currentUserId);
 
     public void delete(Attachment entityToDelete);
 

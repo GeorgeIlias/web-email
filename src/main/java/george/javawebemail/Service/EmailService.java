@@ -54,11 +54,33 @@ public class EmailService implements IEmailService {
     @Override
     public List<Email> findEmailsByEmailIdAndUser(Long id, User user) {
         try {
-            return emailRepoObject.findAllByIdAndByUser(id, user);
+            return emailRepoObject.findAllByIdAndByUserSent(id, user);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public List<Email> findAllByUSer(Long currentUserId) {
+        try {
+            return emailRepoObject.findAllByUser(currentUserId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+    @Override
+    public Email findByIdAndByUserSent(Long id, User currentUserSent) {
+        try {
+            return emailRepoObject.findByIdAndByUserSent(id, currentUserSent).get();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
 }

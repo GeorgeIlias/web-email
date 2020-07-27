@@ -18,7 +18,12 @@ import java.util.Optional;
 @Repository
 public interface EmailRepository extends CrudRepository<Email, Long> {
 
-    public List<Email> findAllByIdAndByUser(Long id, User currentUser);
+    public Optional<Email> findByIdAndByUserSent(Long id, User userSent);
+
+    public List<Email> findAllByIdAndByUserSent(Long id, User currentUser);
+
+    @Query(value = "select * from emails where emails.email_user_table_id =?1", nativeQuery = true)
+    public List<Email> findAllByUser(Long currentUserId);
 
     public List<Email> findAllById(Long id);
 

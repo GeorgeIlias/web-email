@@ -24,4 +24,8 @@ public interface IEmailService {
 
     public List<Email> findEmailsByEmailIdAndUser(Long id, User user);
 
+    public List<Email> findAllByUSer(Long curerntUserId);
+
+    public Email findByIdAndByUserSent(Long id, User currentUserSent);
+
 }
