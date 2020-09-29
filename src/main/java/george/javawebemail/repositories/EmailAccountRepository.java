@@ -12,8 +12,7 @@ public interface EmailAccountRepository extends CrudRepository<EmailAccount, Lon
 
     public Optional<EmailAccount> findById(Long id);
 
-    public EmailAccount save(EmailAccount entityToSave);
-
+    public <S extends EmailAccount> S save(EmailAccount entityToSave);
 
     public void delete(EmailAccount entityToDelete);
 }

@@ -2,7 +2,6 @@ package george.javawebemail.Controllers;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.zip.CheckedInputStream;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -24,8 +23,8 @@ import george.javawebemail.Utilities.CurrentUser;
 import george.javawebemail.Entities.User;
 
 @Controller
+@RequestMapping("/api/Attachment")
 @Component
-@RequestMapping(value = "/api/Attachment")
 public class AttachmentController {
 
     @Autowired

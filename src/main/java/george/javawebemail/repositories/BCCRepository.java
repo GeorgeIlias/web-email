@@ -12,7 +12,7 @@ public interface BCCRepository extends CrudRepository<BCC, Long> {
 
     public List<BCC> findAllById(Long id);
 
-    public BCC save(BCC entity);
+    public <S extends BCC> S save(BCC entity);
 
     public Optional<BCC> findById(Long id);
 

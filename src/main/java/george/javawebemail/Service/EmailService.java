@@ -54,7 +54,7 @@ public class EmailService implements IEmailService {
     @Override
     public List<Email> findEmailsByEmailIdAndUser(Long id, User user) {
         try {
-            return emailRepoObject.findAllByIdAndByUserSent(id, user);
+            return emailRepoObject.findAllByIdAndByEmailUserTableId(id, user.getId());
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -75,7 +75,7 @@ public class EmailService implements IEmailService {
     @Override
     public Email findByIdAndByUserSent(Long id, User currentUserSent) {
         try {
-            return emailRepoObject.findByIdAndByUserSent(id, currentUserSent).get();
+            return emailRepoObject.findByIdAndByEmailUserTableId(id, currentUserSent.getId()).get();
         } catch (Exception e) {
             e.printStackTrace();
             return null;

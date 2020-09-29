@@ -7,7 +7,6 @@
 package george.javawebemail.repositories;
 
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import george.javawebemail.Entities.CC;
@@ -21,7 +20,7 @@ public interface CCRepository extends CrudRepository<CC, Long> {
 
     public Optional<CC> findById(Long id);
 
-    public <S extends CC> S save(S entity);
+    public <S extends CC> S save(CC entity);
 
     public void delete(CC entityToDelete);
 

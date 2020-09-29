@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import george.javawebemail.Entities.Attachment;
 
 @Repository
-
 public interface AttachmentRepository extends CrudRepository<Attachment, Long> {
 
     @Query(value = "select * from Attachment a where a.attachedTable.emailUserTable.id= :userId", nativeQuery = true)
@@ -23,6 +22,8 @@ public interface AttachmentRepository extends CrudRepository<Attachment, Long> {
 
     public Optional<Attachment> findById(Long id);
 
+    // TODO add an actual working query for this
+    @Query(value = "select * fomr attachment", nativeQuery = true)
     public Optional<Attachment> findByIdAndUserId(Long id, Long currentUserId);
 
     public void delete(Attachment entityToDelete);

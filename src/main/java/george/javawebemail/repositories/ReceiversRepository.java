@@ -13,7 +13,7 @@ public interface ReceiversRepository extends CrudRepository<Receivers, Long> {
 
     public Optional<Receivers> findById(Long id);
 
-    public Receivers save(Receivers entityToSave);
+    public <S extends Receivers> S save(Receivers entityToSave);
 
     // public Receivers merge(Receivers entityToMerge);
 

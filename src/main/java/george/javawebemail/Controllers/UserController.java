@@ -30,16 +30,19 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-@RequestMapping(value = "/api/user")
 @Component
 @CrossOrigin
+@RequestMapping(value = "/api/user")
 public class UserController {
 
     @Autowired
     private UserService userServiceObject;
 
     /**
-     * Method to register a given user by creating the user in the database
+     * Method to register a given user by creating the user in the database example
+     * for api call
+     * 
+     * date format should be: dd/MM/yyyy
      * 
      * @param userParameters
      * @return
@@ -82,13 +85,16 @@ public class UserController {
                 returningHashMap.clear();
                 e.printStackTrace();
                 returningHashMap.put("message", "userName already in use please try again");
-                return Response.status(400).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
+            } else {
+                e.printStackTrace();
             }
-            e.printStackTrace();
+
         }
-        returningHashMap.clear();
-        returningHashMap.put("message",
-                "The user is already logged in, please log out of this account to log into another");
+        if (returningHashMap.size() == 0) {
+            returningHashMap.clear();
+            returningHashMap.put("message",
+                    "The user is already logged in, please log out of this account to log into another");
+        }
         return Response.status(400).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
 
     }

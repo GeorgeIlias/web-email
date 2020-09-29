@@ -2,7 +2,6 @@
  * Controller get api responses for the emails
  * 
  * @author gIlias
- * 
  */
 
 package george.javawebemail.Controllers;
@@ -13,13 +12,11 @@ import george.javawebemail.Service.*;
 import george.javawebemail.ConstantFilters.*;
 import george.javawebemail.Utilities.*;
 
-import java.sql.SQLDataException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import javax.print.attribute.standard.Media;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -27,17 +24,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 //TODO test in insmonia for bugs
 @Controller
-@RequestMapping(value = "/api/emailController")
+@RequestMapping("/api/emailController")
 @Component
 @CrossOrigin
-public class EmailController {
+// class for the email controller, T extends Object is for testing for now to
+// solve the type safety warning
+public class EmailController<T extends Object> {
 
     @Autowired
     private EmailService emailServiceObject;
@@ -49,7 +47,7 @@ public class EmailController {
      * @param id
      * @return
      */
-    @RequestMapping(value = "getEmails", method = RequestMethod.GET)
+    @RequestMapping(value = "/getEmails", method = RequestMethod.GET)
     public Response getEmailByIdAndUser(@RequestParam Long id) {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
         int returnStatusCode = 200;
@@ -73,7 +71,7 @@ public class EmailController {
         } catch (Exception e) {
             returningHashMap.clear();
             e.printStackTrace();
-            Class classNameForIfs = e.getClass();
+            Class<?> classNameForIfs = e.getClass();
             if (classNameForIfs.isAssignableFrom(SQLException.class)) {
                 returnStatusCode = 500;
                 returningHashMap.put("message", "Error in the database, please try again later");
@@ -95,7 +93,7 @@ public class EmailController {
      * @author gIlias
      * @return
      */
-    @RequestMapping(value = "getEmails", method = RequestMethod.GET)
+    @RequestMapping(value = "/getEmailByUser", method = RequestMethod.GET)
     public Response getEmailsByUser() {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
         User currentLoggedInUser = CurrentUser.currentLoggedOnUser;
