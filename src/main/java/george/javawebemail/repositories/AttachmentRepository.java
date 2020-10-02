@@ -23,7 +23,7 @@ public interface AttachmentRepository extends CrudRepository<Attachment, Long> {
     public Optional<Attachment> findById(Long id);
 
     // TODO add an actual working query for this
-    @Query(value = "select * fomr attachment", nativeQuery = true)
+    @Query(value = "select * from attachment", nativeQuery = true)
     public Optional<Attachment> findByIdAndUserId(Long id, Long currentUserId);
 
     public void delete(Attachment entityToDelete);

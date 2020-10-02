@@ -1,3 +1,7 @@
+/**
+ * Class to control how the server serves attachments to the client
+ * @author gIlias
+ */
 package george.javawebemail.Controllers;
 
 import java.util.HashMap;
@@ -7,12 +11,16 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import george.javawebemail.Entities.Attachment;
 import george.javawebemail.Entities.Email;
 import george.javawebemail.Service.AttachmentService;
@@ -87,19 +95,20 @@ public class AttachmentController {
      */
     // TODO add the body for this method specifically to delete a given attahchemnt
     @RequestMapping(value = "/deleteGivenAttachemnt", method = RequestMethod.DELETE)
-    public Response deleteGivenAttachment(@RequestBody Long attachmentId) {
+    @ResponseBody
+    public Response deleteGivenAttachment(@RequestParam Long attachmentId) {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
         int returningStatusNumber = 200;
         User currentLoggedInUser = CurrentUser.currentLoggedOnUser;
         if (currentLoggedInUser != null) {
             try {
-                boolean checkForAttachment = attachmentRepository.deleteAttachment(attachmentId);
-                if (!checkForAttachment) {
+                Pair<Boolean, String> checkForAttachment = attachmentRepository.deleteAttachment(attachmentId);
+                if (checkForAttachment.getKey() == false) {
                     returningStatusNumber = 404;
-                    returningHashMap.put("message", "The attachment could not be found.");
+                    returningHashMap.put("message", checkForAttachment.getValue());
                 } else {
                     returningStatusNumber = 200;
-                    returningHashMap.put("message", "The attachment has been deleted.");
+                    returningHashMap.put("message", checkForAttachment.getValue());
                 }
 
             } catch (Exception e) {

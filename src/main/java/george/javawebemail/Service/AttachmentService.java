@@ -1,15 +1,21 @@
 package george.javawebemail.Service;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import george.javawebemail.Entities.Attachment;
 import george.javawebemail.Entities.Email;
+import george.javawebemail.Entities.User;
+import george.javawebemail.Utilities.CurrentUser;
 import george.javawebemail.repositories.AttachmentRepository;
 import george.javawebemail.repositories.EmailRepository;
 import javassist.tools.rmi.ObjectNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
+
+import com.mysql.cj.protocol.Message;
 
 @Service
 public class AttachmentService implements IAttachmentService {
@@ -63,19 +69,28 @@ public class AttachmentService implements IAttachmentService {
    * @author gIlias
    */
   @Override
-  public boolean deleteAttachment(Long attachmentId) {
+  public Pair<Boolean, String> deleteAttachment(Long attachmentId) {
+    Pair<Boolean, String> pairToReturn;
     try {
       Attachment givenAttachment = attachmentRepoObject.findById(attachmentId).get();
       if (givenAttachment != null) {
-        attachmentRepoObject.delete(givenAttachment);
-        emailRepoObject.save(givenAttachment.getAttached());
-        return true;
+        User attachmentUser = givenAttachment.getAttached().getUserSent();
+        if (attachmentUser == CurrentUser.currentLoggedOnUser) {
+          attachmentRepoObject.delete(givenAttachment);
+          emailRepoObject.save(givenAttachment.getAttached());
+          pairToReturn = new ImmutablePair<>(true, "the attachment was deleted");
+          return pairToReturn;
+        } else {
+          throw new NullPointerException("The  user given does not match the user that created this attachment");
+        }
       } else {
-        throw new ObjectNotFoundException("the chosen object has not been found");
+        throw new ObjectNotFoundException("The chosen object has not been found");
       }
     } catch (Exception e) {
       e.printStackTrace();
-      return false;
+      String messageToReturn = e.getMessage();
+      pairToReturn = new ImmutablePair<>(false, messageToReturn);
+      return pairToReturn;
     }
 
   }

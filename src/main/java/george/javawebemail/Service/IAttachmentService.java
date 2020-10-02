@@ -3,6 +3,8 @@ package george.javawebemail.Service;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import george.javawebemail.Entities.Attachment;
 
 public interface IAttachmentService {
@@ -13,10 +15,8 @@ public interface IAttachmentService {
 
     public boolean createAttachment(Long emailId, byte[] attahcmentContent);
 
-    public boolean deleteAttachment(Long attahcmentId);
+    public Pair<Boolean,String> deleteAttachment(Long attahcmentId);
 
     public List<Attachment> getAllAttachmentsByEmail(Long emailId);
-
-    
 
 }

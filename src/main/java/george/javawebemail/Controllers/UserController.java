@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.sql.SQLIntegrityConstraintViolationException;
@@ -28,6 +29,7 @@ import george.javawebemail.Service.UserService;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 @Component
@@ -218,12 +220,4 @@ public class UserController {
             return Response.status(400).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
         }
     }
-
-    @GetMapping(value = "/error")
-    public Response returnErrorForFiveHundred(String message) {
-        HashMap<String, String> returningHashMap = new HashMap<String, String>();
-        returningHashMap.put("message", "error: Routing ");
-        return Response.status(500).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
-    }
-
 }
