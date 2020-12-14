@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import george.javawebemail.Entities.Email;
 import george.javawebemail.Entities.User;
+import george.javawebemail.Exceptions.NoDatabaseObject;
 import george.javawebemail.repositories.EmailRepository;
 
 @Service
@@ -62,12 +63,21 @@ public class EmailService implements IEmailService {
     }
 
     @Override
-    public List<Email> findAllByUSer(Long currentUserId) {
+    public List<Email> findAllByUSer(Long currentUserId) throws NoDatabaseObject {
+
         try {
-            return emailRepoObject.findAllByUser(currentUserId);
+            List<Email> listOfEmailsToReturn = emailRepoObject.findAllByUser(currentUserId);
+            if (listOfEmailsToReturn != null) {
+                return listOfEmailsToReturn;
+            } else {
+                throw new NoDatabaseObject();
+            }
+        } catch (NoDatabaseObject ndo) {
+            ndo.printStackTrace();
+            throw ndo;
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            throw e;
         }
 
     }

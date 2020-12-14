@@ -26,5 +26,4 @@ public class MyWebAppInitializer implements WebApplicationInitializer {
         dispatcher.setLoadOnStartup(1);
         dispatcher.addMapping("/");
     }
-
 }

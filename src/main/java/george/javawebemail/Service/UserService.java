@@ -71,6 +71,7 @@ public class UserService implements IUserService {
         }
     }
 
+    // TODO FIX THIS SERVICE METHOD
     @Override
     public User findUserByUserNameAndPasswordHash(String username, String passwordHash) {
         try {
@@ -85,6 +86,16 @@ public class UserService implements IUserService {
             npe.printStackTrace();
         } catch (IllegalArgumentException iae) {
             iae.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public User findUserByCookieHash(String cookieHash) {
+        try {
+            return userRepoObject.findByCookieHash(cookieHash).get();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }

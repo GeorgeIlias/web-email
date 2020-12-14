@@ -90,6 +90,16 @@ public class Email {
                 this.userSent = user;
         }
 
+        public Email(String sender, String subject, List<Receivers> receiverList, List<CC> ccEmailsList,
+                        List<BCC> bccEmailsList, User user) {
+                this.sender = sender;
+                this.subject = subject;
+                this.receiversList = receiverList;
+                this.ccEmailsList = ccEmailsList;
+                this.bccEmailsList = bccEmailsList;
+                this.userSent = user;
+        }
+
         public Email() {
         }
 }

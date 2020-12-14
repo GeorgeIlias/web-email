@@ -1,3 +1,8 @@
+/**
+ * 
+ * 
+ */
+
 package george.javawebemail.Controllers;
 
 import javax.ws.rs.core.MediaType;
@@ -28,8 +33,6 @@ import george.javawebemail.Entities.User;
 import george.javawebemail.Service.UserService;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 @Component
@@ -56,7 +59,9 @@ public class UserController {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
         try {
             if (CurrentUser.currentLoggedOnUser == null) {
-                userParameters.put("portChosen", new String("25"));
+                if (userParameters.get("portChosen") == null) {
+                    userParameters.put("portChosen", new String("25"));
+                }
                 // DateTimeFormatter dtf = DateTimeFormatter.ofPattern("DD/MM/YYYY");
                 // userParameters.put("createdAt", dtf.format(LocalDateTime.now()).toString());
                 String passwordHash = PlainTextToHashUtil
@@ -75,6 +80,7 @@ public class UserController {
                 String userString = BeanJsonTransformer.multipleObjectsToJsonStringWithFilters(userToReturn,
                         filterToAdd);
                 CurrentUser.currentLoggedOnUser = userToReturn;
+
                 return Response.status(200).entity(userString).type(MediaType.APPLICATION_JSON).build();
             } else {
                 returningHashMap.put("message",
@@ -93,7 +99,6 @@ public class UserController {
 
         }
         if (returningHashMap.size() == 0) {
-            returningHashMap.clear();
             returningHashMap.put("message",
                     "The user is already logged in, please log out of this account to log into another");
         }
@@ -156,48 +161,6 @@ public class UserController {
     }
 
     /**
-     * method to register a user and then return that user and log into the website.
-     * 
-     * 
-     * 
-     * @author gIlias
-     * @param registrationList
-     * @return
-     */
-    // @RequestMapping(value = "/registerRequest", method = RequestMethod.PUT)
-    // @ResponseBody
-    // public Response registerGivenUser(@RequestBody HashMap<String, Object>
-    // registrationList) {
-    // HashMap<String, String> returningHashMap = new HashMap<String, String>();
-    // try {
-    // if (CurrentUser.currentLoggedOnUser != null) {
-    // returningHashMap.put("message",
-    // "You are already logged in, please log out before you attempt to register a
-    // new user");
-    // return Response.status(Status.INTERNAL_SERVER_ERROR).entity(returningHashMap)
-    // .type(MediaType.APPLICATION_JSON).build();
-    // } else {
-    // User userToRegister = new User();
-    // userToRegister.fromMapToObject(registrationList);
-    // User currentUserSaved = userServiceObject.saveUser(userToRegister);
-    // String jsonData =
-    // BeanJsonTransformer.singleObjectToJsonStringWithFilters(currentUserSaved,
-    // "userFilter", JsonFilterConstants.USERS_OPTIONAL_LOGIN_PROPERTIES);
-    // CurrentUser.currentLoggedOnUser = currentUserSaved;
-    // return
-    // Response.status(200).entity(jsonData).type(MediaType.APPLICATION_JSON).build();
-    // }
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // returningHashMap.put("message", "Error when registering, please try again
-    // later");
-    // return
-    // Response.status(Status.BAD_REQUEST).entity(returningHashMap).type(MediaType.APPLICATION_JSON)
-    // .build();
-    // }
-    // }
-
-    /**
      * method to return a message depending on if the logout was successful or not
      * 
      * 
@@ -208,12 +171,17 @@ public class UserController {
     // following rest apis as an example
     @RequestMapping(value = "/logoutRequest", method = RequestMethod.GET)
     @ResponseBody
-    public Response logoutMethod() {
+    public Response logoutMethod(@RequestBody String id) {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
         try {
-            CurrentUser.currentLoggedOnUser = null;
-            returningHashMap.put("message", "success,you have been logged out");
+            returningHashMap.clear();
+            if (id != null) {
+                returningHashMap.put("message", "success,you have been logged out");
+            } else {
+                returningHashMap.put("message", "No user was logged in");
+            }
             return Response.status(200).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
+
         } catch (Exception e) {
             e.printStackTrace();
             returningHashMap.put("message", "Error, the request has returned an error, please try again later");

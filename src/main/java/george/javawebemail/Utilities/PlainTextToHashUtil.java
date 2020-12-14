@@ -7,6 +7,9 @@ package george.javawebemail.Utilities;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class PlainTextToHashUtil {
     private static String convertPlainTextToHas(String plainTextString) throws NoSuchAlgorithmException {
@@ -102,6 +105,35 @@ public class PlainTextToHashUtil {
             return false;
         }
         return false;
+    }
+
+    /**
+     * method to create a hash for the cookie, will be used to find out what user is
+     * logged on.
+     * 
+     * @author gIlias
+     * 
+     * 
+     */
+    public static String cookieHash() {
+        StringBuilder hashToReturn = new StringBuilder();
+        Random randomNumber = new Random();
+        for (int counter = 0; counter < 150; counter++) {
+            char itemToAppend;
+            if ((randomNumber.nextInt(10) % 2) == 0) {
+                if ((randomNumber.nextInt(5) % 2) == 1) {
+                    itemToAppend = (char) (randomNumber.nextInt(26) + 'a');
+                } else {
+                    itemToAppend = (char) (randomNumber.nextInt(16) + 'A');
+                }
+            } else {
+                itemToAppend = (char) (randomNumber.nextInt(10));
+            }
+            hashToReturn.append(itemToAppend);
+
+        }
+        return hashToReturn.toString();
+
     }
 
 }

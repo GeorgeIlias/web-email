@@ -11,6 +11,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,18 +28,23 @@ import george.javawebemail.Entities.Attachment;
 import george.javawebemail.Entities.Email;
 import george.javawebemail.Service.AttachmentService;
 import george.javawebemail.Service.EmailService;
+import george.javawebemail.Service.UserService;
 import george.javawebemail.Utilities.BeanJsonTransformer;
 import george.javawebemail.ConstantFilters.JsonFilterConstants;
 import george.javawebemail.Utilities.CurrentUser;
+import george.javawebemail.Utilities.CurrentWrittenEmail;
+
 import george.javawebemail.Entities.User;
 
 @Controller
 @RequestMapping("/api/Attachment")
 @Component
 public class AttachmentController {
+    @Autowired
+    private AttachmentService attachmentServiceRepo;
 
     @Autowired
-    private AttachmentService attachmentRepository;
+    private UserService userServiceObject;
 
     @Autowired
     private EmailService emailRepoObject;
@@ -44,6 +52,7 @@ public class AttachmentController {
     // TODO fix the find by id and get a given user, will probably be a weird query
     // to get working
 
+    // TODO fix this to not user currentLoggedOnUser
     /**
      * Method to get a given attachemnt based on it's id and the user that is
      * currently logged into
@@ -54,10 +63,12 @@ public class AttachmentController {
      * @author gIlias
      */
     @RequestMapping(value = "/getAttachment", method = RequestMethod.GET)
-    public Response findAttachmentById(@RequestBody Long attachmentId, @RequestBody Long emailId) {
+    public Response findAttachmentById(@RequestParam Long attachmentId, @RequestParam Long emailId,
+            @RequestParam String cookieHash) {
         if (CurrentUser.currentLoggedOnUser != null) {
             try {
-                Email emailToUse = emailRepoObject.findByIdAndByUserSent(emailId, CurrentUser.currentLoggedOnUser);
+                Email emailToUse = emailRepoObject.findByIdAndByUserSent(emailId,
+                        userServiceObject.findUserByCookieHash(cookieHash));
                 Attachment currentAttachment = null;
 
                 for (Attachment currentAttachmentInLoop : emailToUse.getAttachmentList()) {
@@ -96,27 +107,38 @@ public class AttachmentController {
     // TODO add the body for this method specifically to delete a given attahchemnt
     @RequestMapping(value = "/deleteGivenAttachemnt", method = RequestMethod.DELETE)
     @ResponseBody
-    public Response deleteGivenAttachment(@RequestParam Long attachmentId) {
+    public Response deleteGivenAttachment(@RequestBody Long attachmentId, @RequestBody Long emailId,
+            @RequestBody String cookieHash) {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
         int returningStatusNumber = 200;
-        User currentLoggedInUser = CurrentUser.currentLoggedOnUser;
-        if (currentLoggedInUser != null) {
-            try {
-                Pair<Boolean, String> checkForAttachment = attachmentRepository.deleteAttachment(attachmentId);
-                if (checkForAttachment.getKey() == false) {
-                    returningStatusNumber = 404;
-                    returningHashMap.put("message", checkForAttachment.getValue());
-                } else {
-                    returningStatusNumber = 200;
-                    returningHashMap.put("message", checkForAttachment.getValue());
+        Email emailToUse = emailRepoObject.findByIdAndByUserSent(emailId,
+                userServiceObject.findUserByCookieHash(cookieHash));
+        if (emailToUse != null) {
+            Attachment currentAttachment = null;
+            for (Attachment currentAttachmentInLoop : emailToUse.getAttachmentList()) {
+                if (currentAttachmentInLoop.getId() == attachmentId) {
+                    currentAttachment = currentAttachmentInLoop;
                 }
+            }
+            if (currentAttachment != null) {
+                try {
+                    Pair<Boolean, String> checkForAttachment = attachmentServiceRepo
+                            .deleteAttachment(currentAttachment.getId());
+                    if (checkForAttachment.getKey() == false) {
+                        returningStatusNumber = 404;
+                        returningHashMap.put("message", checkForAttachment.getValue());
+                    } else {
+                        returningStatusNumber = 200;
+                        returningHashMap.put("message", checkForAttachment.getValue());
+                    }
 
-            } catch (Exception e) {
-                returningHashMap.put("message",
-                        "An error occured while trying to search for the given attachment to delete");
-                returningStatusNumber = 500;
-                return Response.status(returningStatusNumber).entity(returningHashMap).type(MediaType.APPLICATION_JSON)
-                        .build();
+                } catch (Exception e) {
+                    returningHashMap.put("message",
+                            "An error occured while trying to search for the given attachment to delete");
+                    returningStatusNumber = 500;
+                    return Response.status(returningStatusNumber).entity(returningHashMap)
+                            .type(MediaType.APPLICATION_JSON).build();
+                }
             }
 
         } else {
@@ -125,5 +147,75 @@ public class AttachmentController {
                     .build();
         }
         return Response.status(returningStatusNumber).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
+    }
+
+    /**
+     * creation api end point for the attachment objects Will take a parameter list
+     * and the key for the byte will be byteAttachment
+     * 
+     * @param parameterList
+     * @return
+     */
+    @RequestMapping(value = "/createAttachment", method = RequestMethod.PUT)
+    @ResponseBody
+    public Response createAttachment(@RequestBody HashMap<String, String> parameterList, @RequestBody long emailId) {
+        int statusNumber = 500;
+        HashMap<String, String> returnMessage = new HashMap<String, String>();
+        try {
+            try {
+
+                byte[] currentAttachment = parameterList.get("attachment").toString().getBytes();
+                // Attachment currentAttachment = new ObjectMapper().readValue(new
+                // Gson().toJson(parameterList),
+                // Attachment.class);
+
+                // will take the email that you are trying to write and will check if it is
+                // saved. if it is then the attachment will be added to it and then the code
+                // will play out.
+                Email currentEmailToUser = emailRepoObject.findById(emailId);
+                if (currentEmailToUser == null) {
+                    returnMessage.clear();
+                    returnMessage.put("message",
+                            "An email doesn't exist, please start one before trying to add an attachment");
+                    statusNumber = 500;
+                } else {
+                    if (currentAttachment != null) {
+                        if (!checkForGivenAttachment(currentAttachment, currentEmailToUser)) {
+                            // TODO add create
+                            boolean isCreated = attachmentServiceRepo.createAttachment(currentEmailToUser.getId(),
+                                    currentAttachment);
+                        }
+                    }
+
+                }
+
+            } catch (Exception roughTopLevelException) {
+                roughTopLevelException.printStackTrace();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        // temp return TODO actual return
+        return Response.status(400).entity(null).type(MediaType.APPLICATION_JSON).build();
+
+    }
+
+    /**
+     * Helper method to look for an attachment in the current email and add it to
+     * the list of attachments for that email, if it doesn't already exist in that
+     * email.
+     * 
+     * 
+     * @author gIlias
+     * @param attachmentToCheckFor
+     */
+    private boolean checkForGivenAttachment(byte[] attachmentToCheckFor, Email existingEmailFound) {
+        boolean booleanToReturn = false;
+        booleanToReturn = existingEmailFound.getAttachmentList().stream()
+                .anyMatch((o) -> o.getAttachment().equals(attachmentToCheckFor));
+        return booleanToReturn;
     }
 }

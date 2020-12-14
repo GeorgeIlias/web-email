@@ -7,6 +7,8 @@
 package george.javawebemail.Controllers;
 
 import george.javawebemail.Entities.*;
+import george.javawebemail.Exceptions.IncorrectDatabaseResponse;
+import george.javawebemail.Exceptions.NoDatabaseObject;
 import george.javawebemail.Service.*;
 
 import george.javawebemail.ConstantFilters.*;
@@ -20,10 +22,14 @@ import java.util.List;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,6 +46,9 @@ public class EmailController<T extends Object> {
     @Autowired
     private EmailService emailServiceObject;
 
+    @Autowired
+    private UserService userServiceObject;
+
     /**
      * Method to get all the given emails for a user's account
      * 
@@ -47,13 +56,12 @@ public class EmailController<T extends Object> {
      * @param id
      * @return
      */
-    @RequestMapping(value = "/getEmails", method = RequestMethod.GET)
-    public Response getEmailByIdAndUser(@RequestParam Long id) {
+    @RequestMapping(value = "/getEmails", method = RequestMethod.POST)
+    public Response getEmailByIdAndUser(@RequestBody Long id, @RequestBody Long userId) {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
         int returnStatusCode = 200;
         try {
-            // TODO add functional code to complete the given work
-            User currentUser = CurrentUser.currentLoggedOnUser;
+            User currentUser = userServiceObject.findById(userId);
             if (currentUser != null) {
                 List<Email> allEmailsAsked = emailServiceObject.findEmailsByEmailIdAndUser(id, currentUser);
 
@@ -90,13 +98,14 @@ public class EmailController<T extends Object> {
     /**
      * method to delete a given email provided it exists
      * 
+     * @param userId
      * @author gIlias
      * @return
      */
     @RequestMapping(value = "/getEmailByUser", method = RequestMethod.GET)
-    public Response getEmailsByUser() {
+    public Response getEmailsByUser(@RequestBody Long userId) {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
-        User currentLoggedInUser = CurrentUser.currentLoggedOnUser;
+        User currentLoggedInUser = userServiceObject.findById(userId);
         int returningStatusNumber = 200;
         if (currentLoggedInUser != null) {
             try {
@@ -107,13 +116,60 @@ public class EmailController<T extends Object> {
                         .build();
             } catch (Exception e) {
                 returningStatusNumber = 500;
-                returningHashMap.put("message", e.getMessage().toString());
+                returningHashMap.put("message", "an error has occured with the server, please be patient.");
             }
         } else {
             returningStatusNumber = 404;
-            returningHashMap.put("message", "The user is not logged in");
+            returningHashMap.put("message", "The user is not logged in.");
         }
         return Response.status(returningStatusNumber).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
+    }
+
+    /**
+     * Method to create an email given the user is logged in, will either return a
+     * hash map with the message of what went wrong or the entity you were trying to
+     * create
+     * 
+     * 
+     * 
+     * @param parameters
+     * @param id
+     * @author gIlias
+     * @return
+     */
+    @RequestMapping(value = "/createEmail", method = RequestMethod.PUT)
+    public Response createEmail(@RequestBody HashMap<String, Object> parameters, @RequestParam long id) {
+        HashMap<String, String> returningHashMap = new HashMap<String, String>();
+        int statusNumber = 200;
+        try {
+            User userToCheck = userServiceObject.findById(id);
+
+            if (userToCheck != null) {
+                Email emailToSave = emailServiceObject
+                        .save(new ObjectMapper().readValue(new Gson().toJson(parameters), Email.class));
+                emailToSave.setUserSent(userToCheck);
+                // TODO find out a better way to get the user from the sending form
+                Email emailToReturn = emailServiceObject.save(emailToSave);
+                String jsonStringToReturn = BeanJsonTransformer.multipleObjectsToJsonStringWithFilters(emailToReturn,
+                        returnTypicalPropertiesForEmail());
+                return Response.status(statusNumber).entity(jsonStringToReturn).type(MediaType.APPLICATION_JSON)
+                        .build();
+            }
+
+        } catch (IncorrectDatabaseResponse idr) {
+            idr.printStackTrace();
+            returningHashMap.put("message", "The server has not responded normally, please try again later");
+            statusNumber = 500;
+        } catch (NoDatabaseObject ndo) {
+            ndo.printStackTrace();
+            statusNumber = 404;
+            returningHashMap.put("message",
+                    "The user you are looking for does not exist in the database, please try again later.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Response.status(statusNumber).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
+
     }
 
     private HashMap<String, HashSet<String>> returnTypicalPropertiesForEmail() {

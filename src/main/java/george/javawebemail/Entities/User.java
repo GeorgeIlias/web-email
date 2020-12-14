@@ -60,9 +60,12 @@ public class User {
     @OneToMany(mappedBy = "userSent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Email> listOfEmails;
 
+    @Column
+    private String cookieHash;
+
     public User(Long id, String firstName, String lastName, Date createdAt, Long portChosen, String passwordHash,
             String userName, Date dateOfBirth, List<EmailAccount> listOfGivenEmailAccounts,
-            List<Email> listOfGivenEmails) {
+            List<Email> listOfGivenEmails, String cookieHash) {
         this.setId(id);
         this.setUserName(userName);
         this.firstName = firstName;
@@ -73,10 +76,11 @@ public class User {
         this.dateOfBirth = dateOfBirth;
         this.listOfEmails = listOfGivenEmails;
         this.userEmailAccounts = listOfGivenEmailAccounts;
+        this.cookieHash = cookieHash;
     }
 
     public User(Long id, String firstName, String lastName, Date createdAt, Long portChosen, String passwordHash,
-            String userName, Date dateOfBirth, List<EmailAccount> listOfGivenEmailAccounts) {
+            String userName, Date dateOfBirth, List<EmailAccount> listOfGivenEmailAccounts, String cookieHash) {
         this.setId(id);
         this.setUserName(userName);
         this.firstName = firstName;
@@ -86,10 +90,11 @@ public class User {
         this.passwordHash = passwordHash;
         this.dateOfBirth = dateOfBirth;
         this.userEmailAccounts = listOfGivenEmailAccounts;
+        this.cookieHash = cookieHash;
     }
 
     public User(String firstName, String lastName, Date createdAt, Long portChosen, String passwordHash,
-            String userName, Date dateOfBirth, List<EmailAccount> listOfGivenEmailAccounts) {
+            String userName, Date dateOfBirth, List<EmailAccount> listOfGivenEmailAccounts, String cookieHash) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.createdAt = createdAt;
@@ -97,6 +102,7 @@ public class User {
         this.passwordHash = passwordHash;
         this.dateOfBirth = dateOfBirth;
         this.userEmailAccounts = listOfGivenEmailAccounts;
+        this.cookieHash = cookieHash;
         this.setUserName(userName);
 
     }
@@ -135,6 +141,21 @@ public class User {
             e.printStackTrace();
         }
 
+    }
+
+    public User(Long id, String firstName, String lastName, Date createdAt, Long portChosen, String passwordHash,
+            String userName, Date dateOfBirth, List<EmailAccount> listOfGivenEmailAccounts,
+            List<Email> listOfGivenEmails) {
+        this.setId(id);
+        this.setUserName(userName);
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.createdAt = createdAt;
+        this.portChosen = portChosen;
+        this.passwordHash = passwordHash;
+        this.dateOfBirth = dateOfBirth;
+        this.listOfEmails = listOfGivenEmails;
+        this.userEmailAccounts = listOfGivenEmailAccounts;
     }
 
     public User() {

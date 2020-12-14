@@ -15,4 +15,6 @@ public interface IUserService {
     public void deleteUser(User userEntity);
 
     public User findUserByUserNameAndPasswordHash(String username, String passwordHash);
+
+    public User findUserByCookieHash(String cookieHash);
 }

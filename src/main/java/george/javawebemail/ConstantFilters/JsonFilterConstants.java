@@ -63,15 +63,17 @@ public class JsonFilterConstants {
         // created controller methods
         public final static HashSet<String> USERS_ALL_PROPERTIES = new HashSet<String>(
                         Arrays.asList("id", "firstName", "lastName", "createdAt", "portChosen", "passwordHash",
-                                        "userName", "id", "dateOfBirth", "listOfEmails"));
+                                        "userName", "id", "dateOfBirth", "listOfEmails", "cookieHash"));
         public final static HashSet<String> USERS_REQUIRED_PROPERTIES = new HashSet<String>(
                         Arrays.asList("firstName", "lastName", "createdAd", "portChosen", "passwordHash", "userName",
-                                        "id", "dateOfBirth", "listOfEmails"));
+                                        "id", "dateOfBirth", "listOfEmails", "cookieHash"));
         // Set that contains the optional properties of the current user entity
-        public final static HashSet<String> USERS_OPTIONAL_PROPERTIES = new HashSet<String>(Arrays.asList("id"));
+        public final static HashSet<String> USERS_OPTIONAL_PROPERTIES = new HashSet<String>(
+                        Arrays.asList("id", "cookieHash"));
 
-        public final static HashSet<String> USERS_OPTIONAL_LOGIN_PROPERTIES = new HashSet<String>(Arrays.asList("id",
-                        "firstName", "lastName", "createAd", "userName", "id", "dateOfBirth", "portChosen"));
+        public final static HashSet<String> USERS_OPTIONAL_LOGIN_PROPERTIES = new HashSet<String>(
+                        Arrays.asList("id", "firstName", "lastName", "createAd", "userName", "id", "dateOfBirth",
+                                        "portChosen", "cookieHash"));
 
         public final static HashSet<String> USERS_OPTIONAL_UNIDENTIFIABLE_PROPERTIES = new HashSet<String>(
                         Arrays.asList("userName"));

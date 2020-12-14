@@ -40,6 +40,8 @@ public class AttachmentService implements IAttachmentService {
   /**
    * Creates an attachment for the email in the database
    * 
+   * Works with an already existing email
+   * 
    * @param emailId
    * @param attachment
    * @author gIlias
