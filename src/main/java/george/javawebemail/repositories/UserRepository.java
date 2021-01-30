@@ -33,7 +33,7 @@ public interface UserRepository extends CrudRepository<User, Long> {
     // @Query("select us from users us where us.user_name = :username and
     // us.password_hash = :passwordHash")
     @Query(value = "select * from users us where us.user_name = ?1 and us.password_hash = ?2", nativeQuery = true)
-    public Optional<User> findUserByUserNameAndPasswordHash(String username, String passwordHash);
+    public Optional<User> findUserByUserNameAndPasswordHash(String userName, String passwordHash);
 
     public Optional<User> findByCookieHash(String cookieHash);
 

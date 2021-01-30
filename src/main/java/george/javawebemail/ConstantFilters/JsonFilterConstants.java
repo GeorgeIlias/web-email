@@ -15,11 +15,11 @@ public class JsonFilterConstants {
         // arrays/sets of the attachment properties that are required for many of the to
         // be created controller methods.
         public final static HashSet<String> ATTACHMENT_ALL_PROPERTIES = new HashSet<String>(
-                        Arrays.asList("id", "attachment", "attached"));
+                        Arrays.asList("id", "attachment", "attached", "name"));
         public final static HashSet<String> ATTACHMENT_REQUIRED_PROPERTIES = new HashSet<String>(
-                        Arrays.asList("attachment", "attached"));
+                        Arrays.asList("attachment", "attached", "name"));
         public final static HashSet<String> ATTACHMENT_OPTIONAL_PROPERTIES = new HashSet<String>(
-                        Arrays.asList("id", "attachment", "attached"));
+                        Arrays.asList("id", "attachment", "attached", "name"));
         // arrays/sets of the bcc properties that are required for many of the to be
         // created controller methods.
         public final static HashSet<String> BCC_ALL_PROPERTIES = new HashSet<String>(
@@ -42,13 +42,13 @@ public class JsonFilterConstants {
         // created controller methods
         public final static HashSet<String> EMAIL_ALL_PROPERTIES = new HashSet<String>(
                         Arrays.asList("id", "sender", "subject", "text", "receiversList", "ccEmailsList",
-                                        "bccEmailsList", "attachmentList", "userSent"));
+                                        "bccEmailsList", "attachmentList", "userSent", "html"));
         public final static HashSet<String> EMAIL_REQUIRED_PROPERTIES = new HashSet<String>(
                         Arrays.asList("sender", "subject", "text", "receiversList", "ccEmailsList", "bccEmailsList",
-                                        "attachmentList", "userSent"));
+                                        "attachmentList", "userSent", "html"));
         // only contains the optional fields of your entity
         public final static HashSet<String> EMAIL_OPTIONAL_PROPERTIES = new HashSet<String>(
-                        Arrays.asList("id", "ccEmailsList", "bccEmailsList", "attachmnetList"));
+                        Arrays.asList("id", "ccEmailsList", "bccEmailsList", "attachmnetList", "html"));
 
         // arrays/sets of the receivers properties that are required for many of the to
         // be created controller methods
@@ -88,4 +88,13 @@ public class JsonFilterConstants {
 
         // Arrays/sets of the user's embedded id
         public final static HashSet<String> USER_EMBEDDED = new HashSet<String>(Arrays.asList("id", "userName"));
+
+        // arrays/sets of the senders properties that are required for many of the to be
+        // created controller methods
+        public final static HashSet<String> SENDERS_ALL_PROPERTIES = new HashSet<String>(
+                        Arrays.asList("id", "senderReceiver", "senderEmails"));
+        public final static HashSet<String> SENDERS_REQUIRED_PROPERTIES = new HashSet<String>(
+                        Arrays.asList("senderReceiver", "senderEmails"));
+        public final static HashSet<String> SENDERS_OPTIONAL_PROPERTIES = new HashSet<String>(
+                        Arrays.asList("id", "senderReceiver", "senderEmails"));
 }

@@ -1,12 +1,14 @@
 package george.javawebemail.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import george.javawebemail.Entities.EmailAccount;
 import george.javawebemail.Exceptions.IncorrectDatabaseResponse;
 import george.javawebemail.Exceptions.NoDatabaseObject;
 import george.javawebemail.repositories.EmailAccountRepository;
 
+@Service
 public class EmailAccountService implements IEmailAccountService {
 
     @Autowired
@@ -48,8 +50,8 @@ public class EmailAccountService implements IEmailAccountService {
      * @author gIlias
      */
     @Override
-    public <S extends EmailAccount> S saveEmailAccount(EmailAccount entityToSave) throws NoDatabaseObject {
-        S returningEmailAccount = null;
+    public EmailAccount saveEmailAccount(EmailAccount entityToSave) throws NoDatabaseObject {
+        EmailAccount returningEmailAccount = null;
         try {
             returningEmailAccount = emailAccountRepoObject.save(entityToSave);
 

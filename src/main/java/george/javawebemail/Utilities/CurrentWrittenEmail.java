@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import george.javawebemail.Entities.Email;
 import george.javawebemail.Service.EmailService;
-import george.javawebemail.Service.UserService;
 
 public class CurrentWrittenEmail {
 

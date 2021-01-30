@@ -12,18 +12,27 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.ContextLoaderListener;
+import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
 @EnableAutoConfiguration
 @SpringBootApplication
+@SpringSessionRedisConnectionFactory
 @EntityScan(basePackages = { "george.javawebemail.Entities" })
 @EnableJpaRepositories(basePackages = { "george.javawebemail.repositories" })
 @ComponentScan(basePackages = { "george.javawebemail.Service" })
 @ComponentScan(basePackages = { "george.javawebemail.Controllers" })
+@EnableRedisHttpSession
 public class ServingWebContentApplication implements WebApplicationInitializer {
 
 	public static void main(String[] args) {
@@ -48,5 +57,41 @@ public class ServingWebContentApplication implements WebApplicationInitializer {
 	@Bean
 	public RestTemplate restTemplate(RestTemplateBuilder builder) {
 		return builder.build();
+	}
+
+	@Bean
+	public LettuceConnectionFactory connectionFactory() {
+		LettuceConnectionFactory lcf = new LettuceConnectionFactory(
+				new RedisStandaloneConfiguration("localhost", 6379));
+
+		return lcf;
+
+	}
+
+	/**
+	 * command to turn on redis FIX CONNECTION BIND PROPERLY docker machine ip is
+	 * 192.168.99.100 <--- this is specifically for windows 10 machines running on
+	 * windows 10 home (works with localhost now was change in virtual box)
+	 * 
+	 * 
+	 * 
+	 * 
+	 * @return
+	 */
+	@Bean // (name = "listOperationsCaster")
+
+	public RedisTemplate<String, String> redisTemplate() {
+		RedisTemplate<String, String> rt = new RedisTemplate<String, String>();
+
+		rt.setConnectionFactory(connectionFactory());
+
+		return rt;
+	}
+
+	@Bean
+	
+	public ValueOperations<String, String> valueOperations() {
+		ValueOperations<String, String> vo = redisTemplate().opsForValue();
+		return vo;
 	}
 }

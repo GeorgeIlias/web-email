@@ -18,6 +18,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,6 +39,9 @@ public class Attachment {
     @Lob
     @Column(name = "attachment", nullable = false, columnDefinition = "BLOB")
     private byte[] attachment;
+
+    @Column
+    private String name;
 
     @ManyToOne
     @JoinColumn(name = "attachedTable")
@@ -89,7 +93,9 @@ public class Attachment {
 
     }
 
+    @JsonIgnore
     public void setAttached(Email attached) {
         this.attached = attached;
     }
+
 }

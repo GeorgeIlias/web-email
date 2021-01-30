@@ -37,15 +37,21 @@ public class Email {
         private Long id;
 
         @Column
-        private String sender;
-
-        @Column
         private String subject;
 
         @Lob
         @Column(name = "textBody")
         @Type(type = "text")
         private String text;
+
+        @Lob
+        @Column
+        @Type(type = "text")
+        private String html;
+
+        @Column
+        @OneToMany(mappedBy = "senderEmails", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+        private List<Senders> sender;
 
         @Column
         @OneToMany(mappedBy = "emails", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -67,8 +73,8 @@ public class Email {
         @JoinColumn(name = "emailUserTableId", referencedColumnName = "id")
         private User userSent;
 
-        public Email(Long id, String sender, String subject, List<Receivers> receiverList, List<CC> ccEmailsList,
-                        List<BCC> bccEmailsList, List<Attachment> attachmentList, User user) {
+        public Email(Long id, List<Senders> sender, String subject, List<Receivers> receiverList, List<CC> ccEmailsList,
+                        List<BCC> bccEmailsList, List<Attachment> attachmentList, User user, String html) {
                 this.id = id;
                 this.sender = sender;
                 this.subject = subject;
@@ -77,9 +83,10 @@ public class Email {
                 this.bccEmailsList = bccEmailsList;
                 this.attachmentList = attachmentList;
                 this.userSent = user;
+                this.html = html;
         }
 
-        public Email(String sender, String subject, List<Receivers> receiverList, List<CC> ccEmailsList,
+        public Email(List<Senders> sender, String subject, List<Receivers> receiverList, List<CC> ccEmailsList,
                         List<BCC> bccEmailsList, List<Attachment> attachmentList, User user) {
                 this.sender = sender;
                 this.subject = subject;
@@ -90,7 +97,7 @@ public class Email {
                 this.userSent = user;
         }
 
-        public Email(String sender, String subject, List<Receivers> receiverList, List<CC> ccEmailsList,
+        public Email(List<Senders> sender, String subject, List<Receivers> receiverList, List<CC> ccEmailsList,
                         List<BCC> bccEmailsList, User user) {
                 this.sender = sender;
                 this.subject = subject;

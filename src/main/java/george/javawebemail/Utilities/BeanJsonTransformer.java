@@ -5,7 +5,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.std.StdNodeBasedDeserializer;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
@@ -15,6 +17,7 @@ public class BeanJsonTransformer {
             HashSet<String> listOfFilterProperties) {
         try {
             ObjectMapper objMapper = new ObjectMapper();
+            objMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             SimpleFilterProvider sfp = new SimpleFilterProvider();
             sfp.addFilter(filterName, SimpleBeanPropertyFilter.filterOutAllExcept(listOfFilterProperties));
             objMapper.setFilterProvider(sfp);
@@ -30,6 +33,7 @@ public class BeanJsonTransformer {
             HashMap<String, HashSet<String>> filterHashAndMap) {
         try {
             ObjectMapper objMapper = new ObjectMapper();
+            objMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             SimpleFilterProvider sfp = new SimpleFilterProvider();
             for (Entry<String, HashSet<String>> item : filterHashAndMap.entrySet()) {
                 sfp.addFilter(item.getKey(), SimpleBeanPropertyFilter.filterOutAllExcept(item.getValue()));
@@ -98,5 +102,4 @@ public class BeanJsonTransformer {
             return null;
         }
     }
-
 }

@@ -11,9 +11,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,9 +29,6 @@ import george.javawebemail.Service.UserService;
 import george.javawebemail.Utilities.BeanJsonTransformer;
 import george.javawebemail.ConstantFilters.JsonFilterConstants;
 import george.javawebemail.Utilities.CurrentUser;
-import george.javawebemail.Utilities.CurrentWrittenEmail;
-
-import george.javawebemail.Entities.User;
 
 @Controller
 @RequestMapping("/api/Attachment")
@@ -156,10 +150,11 @@ public class AttachmentController {
      * @param parameterList
      * @return
      */
+    // TODO finish attachment creation proccess
     @RequestMapping(value = "/createAttachment", method = RequestMethod.PUT)
     @ResponseBody
     public Response createAttachment(@RequestBody HashMap<String, String> parameterList, @RequestBody long emailId) {
-        int statusNumber = 500;
+        int statusNumber = 200;
         HashMap<String, String> returnMessage = new HashMap<String, String>();
         try {
             try {
@@ -181,7 +176,7 @@ public class AttachmentController {
                 } else {
                     if (currentAttachment != null) {
                         if (!checkForGivenAttachment(currentAttachment, currentEmailToUser)) {
-                            // TODO add create
+                            // TODO add create no seriously add create
                             boolean isCreated = attachmentServiceRepo.createAttachment(currentEmailToUser.getId(),
                                     currentAttachment);
                         }
@@ -197,9 +192,7 @@ public class AttachmentController {
             e.printStackTrace();
             return null;
         }
-
-        // temp return TODO actual return
-        return Response.status(400).entity(null).type(MediaType.APPLICATION_JSON).build();
+        return Response.status(400).entity(returnMessage).type(MediaType.APPLICATION_JSON).build();
 
     }
 

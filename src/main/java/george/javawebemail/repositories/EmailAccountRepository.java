@@ -13,10 +13,10 @@ public interface EmailAccountRepository extends CrudRepository<EmailAccount, Lon
 
     public Optional<EmailAccount> findById(Long id);
 
-    public <S extends EmailAccount> S save(EmailAccount entityToSave);
+    public EmailAccount save(EmailAccount entityToSave);
 
     public void delete(EmailAccount entityToDelete);
 
-    @Query(value="select a from emailAccounts a where a.user_email_accounts_id = ?2 and a.id = ?1")
+    @Query(value = "select * from emailAccounts a where a.user_email_accounts_id = ?2 and a.id = ?1", nativeQuery = true)
     public Optional<EmailAccount> findByUserEmailAccountsAndId(Long emailId, Long userId);
 }

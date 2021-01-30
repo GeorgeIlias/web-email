@@ -26,7 +26,6 @@ import george.javawebemail.Exceptions.NoDatabaseObject;
 import george.javawebemail.Service.EmailAccountService;
 import george.javawebemail.Service.UserService;
 import george.javawebemail.Utilities.BeanJsonTransformer;
-import george.javawebemail.Utilities.PropertiesFileToMap;
 
 @Controller
 @RequestMapping("/api/EmailAccountController")
@@ -88,7 +87,7 @@ public class EmailAccountController {
      * @return
      */
     @RequestMapping(value = "/createEmailAccount", method = RequestMethod.PUT)
-    public Response createEmailAccount(@RequestBody HashMap<String, Object> mapToUse, @RequestBody long userId) {
+    public Response createEmailAccount(@RequestBody HashMap<String, Object> mapToUse, @RequestParam long userId) {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
         int statusNumber = 200;
         try {
@@ -144,7 +143,6 @@ public class EmailAccountController {
                 EmailAccount emailAccountToDelete = emailAccountServiceObject.findEmaillAcountById(emailAccount);
                 if (emailAccountToDelete != null) {
                     emailAccountServiceObject.deleteEmailAccount(emailAccountToDelete);
-                    
 
                 }
             }

@@ -9,6 +9,7 @@ package george.javawebemail.Controllers;
 import george.javawebemail.Entities.*;
 import george.javawebemail.Exceptions.IncorrectDatabaseResponse;
 import george.javawebemail.Exceptions.NoDatabaseObject;
+import george.javawebemail.SendingReceiving.Receive;
 import george.javawebemail.Service.*;
 
 import george.javawebemail.ConstantFilters.*;
@@ -19,13 +20,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import javax.mail.MessagingException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -47,7 +51,13 @@ public class EmailController<T extends Object> {
     private EmailService emailServiceObject;
 
     @Autowired
+    private EmailAccountService emailAccountServiceObject;
+
+    @Autowired
     private UserService userServiceObject;
+
+    @Autowired
+    public ValueOperations<String, String> lo;
 
     /**
      * Method to get all the given emails for a user's account
@@ -56,12 +66,14 @@ public class EmailController<T extends Object> {
      * @param id
      * @return
      */
-    @RequestMapping(value = "/getEmails", method = RequestMethod.POST)
-    public Response getEmailByIdAndUser(@RequestBody Long id, @RequestBody Long userId) {
+    @RequestMapping(value = "/getEmailsFromDatabase", method = RequestMethod.POST)
+    public Response getEmailByIdAndUser(@RequestBody Long id) {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
         int returnStatusCode = 200;
         try {
-            User currentUser = userServiceObject.findById(userId);
+            User currentUser = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    .readValue(new Gson().toJson(lo.get("user")), User.class);
+
             if (currentUser != null) {
                 List<Email> allEmailsAsked = emailServiceObject.findEmailsByEmailIdAndUser(id, currentUser);
 
@@ -102,7 +114,7 @@ public class EmailController<T extends Object> {
      * @author gIlias
      * @return
      */
-    @RequestMapping(value = "/getEmailByUser", method = RequestMethod.GET)
+    @RequestMapping(value = "/getEmailByUserFromDatabase", method = RequestMethod.GET)
     public Response getEmailsByUser(@RequestBody Long userId) {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
         User currentLoggedInUser = userServiceObject.findById(userId);
@@ -133,16 +145,16 @@ public class EmailController<T extends Object> {
      * 
      * 
      * @param parameters
-     * @param id
+     * @param userId
      * @author gIlias
      * @return
      */
     @RequestMapping(value = "/createEmail", method = RequestMethod.PUT)
-    public Response createEmail(@RequestBody HashMap<String, Object> parameters, @RequestParam long id) {
+    public Response createEmail(@RequestBody HashMap<String, Object> parameters, @RequestParam long userId) {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
         int statusNumber = 200;
         try {
-            User userToCheck = userServiceObject.findById(id);
+            User userToCheck = userServiceObject.findById(userId);
 
             if (userToCheck != null) {
                 Email emailToSave = emailServiceObject
@@ -172,6 +184,53 @@ public class EmailController<T extends Object> {
 
     }
 
+    /**
+     * method to receive emails from the email service that the client is using i.e
+     * gmail/yahoo/hotmail etc.
+     * 
+     * @author gIlias
+     * @param userId
+     * @param emailAccountId
+     * @return
+     */
+    @RequestMapping(value = "/getEmailsFromEmailAccountService", method = RequestMethod.GET)
+    public Response getEmailsFromEmailAccountService(@RequestParam Long userId, @RequestParam Long emailAccountId) {
+        HashMap<String, String> returningHashMap = new HashMap<String, String>();
+        int statusNumber = 200;
+        // defaults to inbox, will add a feature for changing the folders later
+        String inboxString = "inbox";
+
+        try {
+            User sentUserId = userServiceObject.findById(userId);
+            if (sentUserId != null) {
+                EmailAccount emailAccountToGetItemsFrom = emailAccountServiceObject
+                        .findEmaillAcountById(emailAccountId);
+                if (emailAccountToGetItemsFrom != null) {
+                    List<Email> returningEmails = Receive.getEmailsFromInboxFolder(emailAccountToGetItemsFrom,
+                            inboxString);
+                    String emailJson = BeanJsonTransformer.listMultipleObjectToJsonStringWithMultipleFilters(
+                            returningEmails, returnTypicalPropertiesForEmail());
+                    statusNumber = 200;
+                    return Response.status(statusNumber).entity(emailJson).type(MediaType.APPLICATION_JSON).build();
+                }
+            }
+        } catch (MessagingException me) {
+            me.printStackTrace();
+            statusNumber = 400;
+            returningHashMap.put("message", "error receiving the messages");
+
+        } catch (NoDatabaseObject ndo) {
+            ndo.printStackTrace();
+            statusNumber = 404;
+            returningHashMap.put("message", "Error receiving the emails you are looking for");
+
+        } catch (IncorrectDatabaseResponse idr) {
+            idr.printStackTrace();
+
+        }
+        return Response.status(statusNumber).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
+    }
+
     private HashMap<String, HashSet<String>> returnTypicalPropertiesForEmail() {
         HashMap<String, HashSet<String>> filterHashAndSet = new HashMap<String, HashSet<String>>();
         filterHashAndSet.put(JsonFilterNameConstants.EMAIL_FILTER_NAME, JsonFilterConstants.EMAIL_REQUIRED_PROPERTIES);
@@ -183,6 +242,7 @@ public class EmailController<T extends Object> {
                 JsonFilterConstants.RECEIVERS_REQUIRED_PROPERTIES);
         filterHashAndSet.put(JsonFilterNameConstants.ATTACHMENT_FILTER_NAME,
                 JsonFilterConstants.ATTACHMENT_REQUIRED_PROPERTIES);
+        filterHashAndSet.put(JsonFilterNameConstants.SENDER_FILTER_NAME, JsonFilterConstants.SENDERS_ALL_PROPERTIES);
 
         return filterHashAndSet;
 

@@ -1,6 +1,7 @@
 package george.javawebemail.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -71,17 +72,16 @@ public class UserService implements IUserService {
         }
     }
 
-    // TODO FIX THIS SERVICE METHOD
+    /**
+     * Will take a userName and a HASHED password then return the given user;
+     */
     @Override
     public User findUserByUserNameAndPasswordHash(String username, String passwordHash) {
         try {
-            User currentUser = null;// userRepoObject.findUserByUserNameAndPasswordHash(username,
-                                    // passwordHash).get();
-            if (currentUser == null) {
-                return null;
-            } else {
-                return currentUser;
-            }
+            User currentUser = userRepoObject.findUserByUserNameAndPasswordHash(username, passwordHash).get();
+            return currentUser;
+        } catch (NoSuchElementException nsee) {
+            return null;
         } catch (NullPointerException npe) {
             npe.printStackTrace();
         } catch (IllegalArgumentException iae) {

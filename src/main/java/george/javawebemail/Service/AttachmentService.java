@@ -15,7 +15,6 @@ import javassist.tools.rmi.ObjectNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
-import com.mysql.cj.protocol.Message;
 
 @Service
 public class AttachmentService implements IAttachmentService {

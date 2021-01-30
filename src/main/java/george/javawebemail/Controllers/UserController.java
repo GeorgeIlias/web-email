@@ -5,19 +5,21 @@
 
 package george.javawebemail.Controllers;
 
+import javax.annotation.Resource;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.sql.SQLIntegrityConstraintViolationException;
@@ -26,7 +28,9 @@ import java.util.HashSet;
 
 import george.javawebemail.Utilities.BeanJsonTransformer;
 import george.javawebemail.Utilities.CurrentUser;
+import george.javawebemail.Utilities.ObjectToString;
 import george.javawebemail.Utilities.PlainTextToHashUtil;
+import george.javawebemail.Utilities.SpringWideBeans;
 import george.javawebemail.ConstantFilters.JsonFilterConstants;
 import george.javawebemail.ConstantFilters.JsonFilterNameConstants;
 import george.javawebemail.Entities.User;
@@ -43,6 +47,10 @@ public class UserController {
     @Autowired
     private UserService userServiceObject;
 
+    // @Resource // (name = "listOperationsCaster")
+    @Autowired
+    public ValueOperations<String, String> lo;
+
     /**
      * Method to register a given user by creating the user in the database example
      * for api call
@@ -58,17 +66,24 @@ public class UserController {
     public Response registerUser(@RequestBody HashMap<String, Object> userParameters) {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
         try {
-            if (CurrentUser.currentLoggedOnUser == null) {
-                if (userParameters.get("portChosen") == null) {
-                    userParameters.put("portChosen", new String("25"));
-                }
-                // DateTimeFormatter dtf = DateTimeFormatter.ofPattern("DD/MM/YYYY");
-                // userParameters.put("createdAt", dtf.format(LocalDateTime.now()).toString());
-                String passwordHash = PlainTextToHashUtil
-                        .addSaltAndConvert(userParameters.get("passwordUnHash").toString());
-                userParameters.remove("passwordUnHash");
-                userParameters.put("passwordHash", passwordHash);
-                User userToRegister = new ObjectMapper().readValue(new Gson().toJson(userParameters), User.class);
+            if (userParameters.get("portChosen") == null) {
+                userParameters.put("portChosen", new String("25"));
+            }
+            // DateTimeFormatter dtf = DateTimeFormatter.ofPattern("DD/MM/YYYY");
+            // DateTimeFormatter dtf = DateTimeFormatter.ofPattern("DD/MM/YYYY");
+            // userParameters.put("createdAt", dtf.format(LocalDateTime.now()).toString());
+            String passwordHash = PlainTextToHashUtil
+                    .addSaltAndConvert(userParameters.get("passwordUnHash").toString());
+            userParameters.remove("passwordUnHash");
+            userParameters.put("passwordHash", passwordHash);
+
+            User userToCheckAgainst = userServiceObject
+                    .findUserByUserNameAndPasswordHash(String.valueOf(userParameters.get("userName")), passwordHash);
+
+            if (userToCheckAgainst == null) {
+                User userToRegister = new ObjectMapper()
+                        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                        .readValue(new Gson().toJson(userParameters), User.class);
                 User userToReturn = userServiceObject.saveUser(userToRegister);
                 HashMap<String, HashSet<String>> filterToAdd = new HashMap<String, HashSet<String>>();
                 filterToAdd.put(JsonFilterNameConstants.USERS_FILTER_NAME,
@@ -79,13 +94,12 @@ public class UserController {
                         JsonFilterConstants.EMAIL_REQUIRED_PROPERTIES);
                 String userString = BeanJsonTransformer.multipleObjectsToJsonStringWithFilters(userToReturn,
                         filterToAdd);
-                CurrentUser.currentLoggedOnUser = userToReturn;
 
+                lo.set("user", ObjectToString.getUserStringForStorage(userToRegister));
                 return Response.status(200).entity(userString).type(MediaType.APPLICATION_JSON).build();
             } else {
-                returningHashMap.put("message",
-                        "The user is already logged in, please log out of this account to log into another");
-                return Response.status(400).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
+                returningHashMap.put("message", "The user already exists, please try again");
+                return Response.status(404).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
             }
 
         } catch (Exception e) {
@@ -113,17 +127,19 @@ public class UserController {
      * and a private key will be used to decrypt the given information
      * 
      * 
-     * @param userName
-     * @param attemptedPassword
+     * @param map
      * @return Response
      * @author gIlias
      */
     @RequestMapping(value = "/loginRequest", method = RequestMethod.POST)
     @ResponseBody
-    public Response loginUserWithResponse(@RequestBody String userName, @RequestBody String attemptedPassword) {
+    public Response loginUserWithResponse(@RequestBody HashMap<String, String> map) {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
-        if (CurrentUser.currentLoggedOnUser == null) {
-            try {
+        try {
+            User userToCheckAgainst = new ObjectMapper().readValue(new Gson().toJson(lo.get("user")), User.class);
+            if (userToCheckAgainst == null) {
+                String attemptedPassword = map.get("attemptedPassword");
+                String userName = map.get("userName");
 
                 User userToReturn = userServiceObject.findUserByUserNameAndPasswordHash(userName,
                         PlainTextToHashUtil.addSaltAndConvert(attemptedPassword));
@@ -139,22 +155,29 @@ public class UserController {
                     } else {
                         returningHashMap.put("message",
                                 "the username/password combination is incorrect, please try again");
+                        // add the user here please
                         return Response.status(400).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
                     }
 
                 } else {
-                    throw new NullPointerException();
+                    returningHashMap.put("message",
+                            "A user is already looged in to this session, please logout if you want to log in using a different user");
+                    return Response.status(404).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
+
                 }
 
-            } catch (Exception e) {
-                e.printStackTrace();
-                returningHashMap.put("message", "Error when handling the login");
+            } else {
+                returningHashMap.put("message",
+                        "The user is already logged on, please log out if you would like to log in to a different account");
                 return Response.status(400).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
             }
-
-        } else {
-            returningHashMap.put("message",
-                    "The user is already logged on, please log out if you would like to log in to a different account");
+        } catch (NullPointerException npe) {
+            npe.printStackTrace();
+            returningHashMap.put("message", "null was found where it shouldn't have been found");
+            return Response.status(404).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            returningHashMap.put("message", "Error when handling the login");
             return Response.status(400).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
         }
 
@@ -171,12 +194,22 @@ public class UserController {
     // following rest apis as an example
     @RequestMapping(value = "/logoutRequest", method = RequestMethod.GET)
     @ResponseBody
-    public Response logoutMethod(@RequestBody String id) {
+    public Response logoutMethod(@RequestBody Long id) {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
         try {
             returningHashMap.clear();
             if (id != null) {
-                returningHashMap.put("message", "success,you have been logged out");
+                User userToCheck = new ObjectMapper()
+                        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                        .readValue(new Gson().toJson(lo.get("user")), User.class);
+                if (userToCheck != null && userToCheck.getId() == id) {
+                    returningHashMap.put("message", "success,you have been logged out");
+                    // there seems not to be a delete for the value operations so setting to null is
+                    // the only choice here.
+                    lo.set("user", null);
+                } else {
+                    throw new Exception();
+                }
             } else {
                 returningHashMap.put("message", "No user was logged in");
             }
