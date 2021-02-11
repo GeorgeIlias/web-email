@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @CrossOrigin
 // class for the email controller, T extends Object is for testing for now to
 // solve the type safety warning
+// TODO add a folders function for the email beans
 public class EmailController<T extends Object> {
 
     @Autowired

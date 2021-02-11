@@ -63,10 +63,10 @@ public class JsonFilterConstants {
         // created controller methods
         public final static HashSet<String> USERS_ALL_PROPERTIES = new HashSet<String>(
                         Arrays.asList("id", "firstName", "lastName", "createdAt", "portChosen", "passwordHash",
-                                        "userName", "id", "dateOfBirth", "listOfEmails", "cookieHash"));
+                                        "userName", "id", "dateOfBirth", "listOfEmails", "cookieHash","folders"));
         public final static HashSet<String> USERS_REQUIRED_PROPERTIES = new HashSet<String>(
                         Arrays.asList("firstName", "lastName", "createdAd", "portChosen", "passwordHash", "userName",
-                                        "id", "dateOfBirth", "listOfEmails", "cookieHash"));
+                                        "id", "dateOfBirth", "listOfEmails", "cookieHash","folders"));
         // Set that contains the optional properties of the current user entity
         public final static HashSet<String> USERS_OPTIONAL_PROPERTIES = new HashSet<String>(
                         Arrays.asList("id", "cookieHash"));
@@ -97,4 +97,10 @@ public class JsonFilterConstants {
                         Arrays.asList("senderReceiver", "senderEmails"));
         public final static HashSet<String> SENDERS_OPTIONAL_PROPERTIES = new HashSet<String>(
                         Arrays.asList("id", "senderReceiver", "senderEmails"));
+
+
+
+        //Arrays/ sets of the userFolder properties that are required period
+        public final static HashSet<String> USER_FOLDERS_ALL_PROPERTIES = new HashSet<String>(Arrays.asList("id","folderNames"));
+        public final static HashSet<String> USER_FOLDER_REQUIRED_PROPERTIES = new HashSet<String>(Arrays.asList("id","folderNames"));
 }

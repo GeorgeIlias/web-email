@@ -14,5 +14,5 @@ public class JsonFilterNameConstants {
     public static final String RECEIVERS_FILTER_NAME = "receiversFilter";
     public static final String USERS_FILTER_NAME = "userFilter";
     public static final String SENDER_FILTER_NAME = "senderFilter";
-
+    public static final String USER_FOLDERS_FILTER_NAME = "userFoldersFilter";
 }

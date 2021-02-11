@@ -30,7 +30,6 @@ import george.javawebemail.Utilities.BeanJsonTransformer;
 import george.javawebemail.Utilities.CurrentUser;
 import george.javawebemail.Utilities.ObjectToString;
 import george.javawebemail.Utilities.PlainTextToHashUtil;
-import george.javawebemail.Utilities.SpringWideBeans;
 import george.javawebemail.ConstantFilters.JsonFilterConstants;
 import george.javawebemail.ConstantFilters.JsonFilterNameConstants;
 import george.javawebemail.Entities.User;
@@ -85,15 +84,8 @@ public class UserController {
                         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                         .readValue(new Gson().toJson(userParameters), User.class);
                 User userToReturn = userServiceObject.saveUser(userToRegister);
-                HashMap<String, HashSet<String>> filterToAdd = new HashMap<String, HashSet<String>>();
-                filterToAdd.put(JsonFilterNameConstants.USERS_FILTER_NAME,
-                        JsonFilterConstants.USERS_REQUIRED_PROPERTIES);
-                filterToAdd.put(JsonFilterNameConstants.EMAIL_ACCOUNT_FILTER_NAME,
-                        JsonFilterConstants.EMAILACCOUNTS_ALL_PROPERTIES);
-                filterToAdd.put(JsonFilterNameConstants.EMAIL_FILTER_NAME,
-                        JsonFilterConstants.EMAIL_REQUIRED_PROPERTIES);
                 String userString = BeanJsonTransformer.multipleObjectsToJsonStringWithFilters(userToReturn,
-                        filterToAdd);
+                getNecessaryConstants());
 
                 lo.set("user", ObjectToString.getUserStringForStorage(userToRegister));
                 return Response.status(200).entity(userString).type(MediaType.APPLICATION_JSON).build();
@@ -220,5 +212,18 @@ public class UserController {
             returningHashMap.put("message", "Error, the request has returned an error, please try again later");
             return Response.status(400).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
         }
+    }
+
+    //method to get the necesseary filters for the jsonConstants 
+    private HashMap<String,HashSet<String>> getNecessaryConstants(){
+        HashMap<String,HashSet<String>> jsonFilterHashMap = new HashMap<String,HashSet<String>>();
+        jsonFilterHashMap.put(JsonFilterNameConstants.USERS_FILTER_NAME,
+        JsonFilterConstants.USERS_REQUIRED_PROPERTIES);
+        jsonFilterHashMap.put(JsonFilterNameConstants.EMAIL_ACCOUNT_FILTER_NAME,
+        JsonFilterConstants.EMAILACCOUNTS_ALL_PROPERTIES);
+        jsonFilterHashMap.put(JsonFilterNameConstants.EMAIL_FILTER_NAME,
+        JsonFilterConstants.EMAIL_REQUIRED_PROPERTIES);
+        jsonFilterHashMap.put(JsonFilterNameConstants.USER_FOLDERS_FILTER_NAME,JsonFilterConstants.USER_FOLDER_REQUIRED_PROPERTIES);
+        return jsonFilterHashMap;
     }
 }

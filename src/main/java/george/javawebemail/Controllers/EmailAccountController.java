@@ -166,12 +166,14 @@ public class EmailAccountController {
         return Response.status(statusNumber).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
     }
 
+    //method to return the default/required filters for the given objects
     private HashMap<String, HashSet<String>> getReturnsDefault() {
         HashMap<String, HashSet<String>> returningObject = new HashMap<String, HashSet<String>>();
         returningObject.put(JsonFilterNameConstants.USERS_FILTER_NAME, JsonFilterConstants.USERS_ALL_PROPERTIES);
         return returningObject;
     }
 
+    //method to return the optional filters for the given objects
     private HashMap<String, HashSet<String>> getReturnsOptionals() {
         HashMap<String, HashSet<String>> returningObject = new HashMap<String, HashSet<String>>();
         returningObject.put(JsonFilterNameConstants.USERS_FILTER_NAME, JsonFilterConstants.USERS_OPTIONAL_PROPERTIES);
