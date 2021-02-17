@@ -34,4 +34,6 @@ public interface EmailRepository extends CrudRepository<Email, Long> {
 
     public void delete(Email id);
 
+    
+
 }
