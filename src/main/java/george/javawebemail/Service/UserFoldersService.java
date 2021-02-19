@@ -19,4 +19,6 @@ public interface UserFoldersService {
 
     public Boolean delete(User userToDelete);
 
+    public void delete(Long id);
+
 }

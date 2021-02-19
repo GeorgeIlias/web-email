@@ -64,9 +64,8 @@ public class User {
     @Column
     private String cookieHash;
 
-    @Column
-    @OneToOne
-    private UserFolders folders;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UserFolders> folders;
 
     public User(Long id, String firstName, String lastName, Date createdAt, Long portChosen, String passwordHash,
             String userName, Date dateOfBirth, List<EmailAccount> listOfGivenEmailAccounts,

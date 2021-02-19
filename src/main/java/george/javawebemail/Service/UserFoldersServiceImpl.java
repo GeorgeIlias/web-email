@@ -54,13 +54,26 @@ public class UserFoldersServiceImpl implements UserFoldersService {
 
     @Override
     public Boolean delete(User userToDelete) {
+        boolean isBoolean = true;
         try {
-            return userFoldersRepositoryEntity.delete(userToDelete);
+            userFoldersRepositoryEntity.delete(userToDelete);
+            return isBoolean;
+        } catch (Exception e) {
+            isBoolean = false;
+            e.printStackTrace();
+            return isBoolean;
+        }
+
+    }
+
+    @Override
+    public void delete(Long id) {
+        try {
+            userFoldersRepositoryEntity.delete(id);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
-
     }
 
 }

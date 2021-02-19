@@ -68,9 +68,6 @@ public class UserController {
             if (userParameters.get("portChosen") == null) {
                 userParameters.put("portChosen", new String("25"));
             }
-            // DateTimeFormatter dtf = DateTimeFormatter.ofPattern("DD/MM/YYYY");
-            // DateTimeFormatter dtf = DateTimeFormatter.ofPattern("DD/MM/YYYY");
-            // userParameters.put("createdAt", dtf.format(LocalDateTime.now()).toString());
             String passwordHash = PlainTextToHashUtil
                     .addSaltAndConvert(userParameters.get("passwordUnHash").toString());
             userParameters.remove("passwordUnHash");
@@ -85,7 +82,7 @@ public class UserController {
                         .readValue(new Gson().toJson(userParameters), User.class);
                 User userToReturn = userServiceObject.saveUser(userToRegister);
                 String userString = BeanJsonTransformer.multipleObjectsToJsonStringWithFilters(userToReturn,
-                getNecessaryConstants());
+                        getNecessaryConstants());
 
                 lo.set("user", ObjectToString.getUserStringForStorage(userToRegister));
                 return Response.status(200).entity(userString).type(MediaType.APPLICATION_JSON).build();
@@ -214,16 +211,15 @@ public class UserController {
         }
     }
 
-    //method to get the necesseary filters for the jsonConstants 
-    private HashMap<String,HashSet<String>> getNecessaryConstants(){
-        HashMap<String,HashSet<String>> jsonFilterHashMap = new HashMap<String,HashSet<String>>();
-        jsonFilterHashMap.put(JsonFilterNameConstants.USERS_FILTER_NAME,
-        JsonFilterConstants.USERS_REQUIRED_PROPERTIES);
+    // method to get the necesseary filters for the jsonConstants
+    private HashMap<String, HashSet<String>> getNecessaryConstants() {
+        HashMap<String, HashSet<String>> jsonFilterHashMap = new HashMap<String, HashSet<String>>();
+        jsonFilterHashMap.put(JsonFilterNameConstants.USERS_FILTER_NAME, JsonFilterConstants.USERS_REQUIRED_PROPERTIES);
         jsonFilterHashMap.put(JsonFilterNameConstants.EMAIL_ACCOUNT_FILTER_NAME,
-        JsonFilterConstants.EMAILACCOUNTS_ALL_PROPERTIES);
-        jsonFilterHashMap.put(JsonFilterNameConstants.EMAIL_FILTER_NAME,
-        JsonFilterConstants.EMAIL_REQUIRED_PROPERTIES);
-        jsonFilterHashMap.put(JsonFilterNameConstants.USER_FOLDERS_FILTER_NAME,JsonFilterConstants.USER_FOLDER_REQUIRED_PROPERTIES);
+                JsonFilterConstants.EMAILACCOUNTS_ALL_PROPERTIES);
+        jsonFilterHashMap.put(JsonFilterNameConstants.EMAIL_FILTER_NAME, JsonFilterConstants.EMAIL_REQUIRED_PROPERTIES);
+        jsonFilterHashMap.put(JsonFilterNameConstants.USER_FOLDERS_FILTER_NAME,
+                JsonFilterConstants.USER_FOLDER_REQUIRED_PROPERTIES);
         return jsonFilterHashMap;
     }
 }
