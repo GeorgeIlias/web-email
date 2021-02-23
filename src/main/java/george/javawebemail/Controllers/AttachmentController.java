@@ -13,6 +13,8 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.integration.redis.support.RedisHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,7 +30,8 @@ import george.javawebemail.Service.EmailService;
 import george.javawebemail.Service.UserService;
 import george.javawebemail.Utilities.BeanJsonTransformer;
 import george.javawebemail.ConstantFilters.JsonFilterConstants;
-import george.javawebemail.Utilities.CurrentUser;
+import george.javawebemail.Controllers.Helper.RedisHelper;
+import george.javawebemail.Utilities.PropertyReturnTypesForControllers;
 
 @Controller
 @RequestMapping("/api/Attachment")
@@ -41,7 +44,10 @@ public class AttachmentController {
     private UserService userServiceObject;
 
     @Autowired
-    private EmailService emailRepoObject;
+    private EmailService emailServiceObject;
+
+    @Autowired
+    private RedisHelper redisHelper;
 
     // TODO fix the find by id and get a given user, will probably be a weird query
     // to get working
@@ -59,9 +65,9 @@ public class AttachmentController {
     @RequestMapping(value = "/getAttachment", method = RequestMethod.GET)
     public Response findAttachmentById(@RequestParam Long attachmentId, @RequestParam Long emailId,
             @RequestParam String cookieHash) {
-        if (CurrentUser.currentLoggedOnUser != null) {
+        if (redisHelper.getUser() != null) {
             try {
-                Email emailToUse = emailRepoObject.findByIdAndByUserSent(emailId,
+                Email emailToUse = emailServiceObject.findByIdAndByUserSent(emailId,
                         userServiceObject.findUserByCookieHash(cookieHash));
                 Attachment currentAttachment = null;
 
@@ -71,9 +77,8 @@ public class AttachmentController {
                     }
                 }
 
-                HashMap<String, HashSet<String>> hashMapSet = new HashMap<String, HashSet<String>>();
-                hashMapSet.put("attachmentFilter", new HashSet<String>(JsonFilterConstants.ATTACHMENT_ALL_PROPERTIES));
-                hashMapSet.put("emailFilter", new HashSet<String>(JsonFilterConstants.EMAIL_ALL_PROPERTIES));
+                HashMap<String, HashSet<String>> hashMapSet = PropertyReturnTypesForControllers.AttachmentControllerProperties
+                        .returnTypicalPropertiesForAttachment();
 
                 String jsonData = BeanJsonTransformer.multipleObjectsToJsonStringWithFilters(currentAttachment,
                         hashMapSet);
@@ -105,7 +110,7 @@ public class AttachmentController {
             @RequestBody String cookieHash) {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
         int returningStatusNumber = 200;
-        Email emailToUse = emailRepoObject.findByIdAndByUserSent(emailId,
+        Email emailToUse = emailServiceObject.findByIdAndByUserSent(emailId,
                 userServiceObject.findUserByCookieHash(cookieHash));
         if (emailToUse != null) {
             Attachment currentAttachment = null;
@@ -167,7 +172,7 @@ public class AttachmentController {
                 // will take the email that you are trying to write and will check if it is
                 // saved. if it is then the attachment will be added to it and then the code
                 // will play out.
-                Email currentEmailToUser = emailRepoObject.findById(emailId);
+                Email currentEmailToUser = emailServiceObject.findById(emailId);
                 if (currentEmailToUser == null) {
                     returnMessage.clear();
                     returnMessage.put("message",

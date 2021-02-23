@@ -27,11 +27,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import george.javawebemail.Utilities.BeanJsonTransformer;
-import george.javawebemail.Utilities.CurrentUser;
 import george.javawebemail.Utilities.ObjectToString;
 import george.javawebemail.Utilities.PlainTextToHashUtil;
+import george.javawebemail.Utilities.PropertyReturnTypesForControllers;
 import george.javawebemail.ConstantFilters.JsonFilterConstants;
 import george.javawebemail.ConstantFilters.JsonFilterNameConstants;
+import george.javawebemail.Controllers.Helper.RedisHelper;
 import george.javawebemail.Entities.User;
 import george.javawebemail.Service.UserService;
 
@@ -47,8 +48,9 @@ public class UserController {
     private UserService userServiceObject;
 
     // @Resource // (name = "listOperationsCaster")
+
     @Autowired
-    public ValueOperations<String, String> lo;
+    private RedisHelper helper;
 
     /**
      * Method to register a given user by creating the user in the database example
@@ -82,9 +84,8 @@ public class UserController {
                         .readValue(new Gson().toJson(userParameters), User.class);
                 User userToReturn = userServiceObject.saveUser(userToRegister);
                 String userString = BeanJsonTransformer.multipleObjectsToJsonStringWithFilters(userToReturn,
-                        getNecessaryConstants());
-
-                lo.set("user", ObjectToString.getUserStringForStorage(userToRegister));
+                        PropertyReturnTypesForControllers.UserControllerProperties.returnTypicalPropertiesForUser());
+                helper.setUser(userToRegister);
                 return Response.status(200).entity(userString).type(MediaType.APPLICATION_JSON).build();
             } else {
                 returningHashMap.put("message", "The user already exists, please try again");
@@ -95,7 +96,7 @@ public class UserController {
             if (e.getClass() == SQLIntegrityConstraintViolationException.class) {
                 returningHashMap.clear();
                 e.printStackTrace();
-                returningHashMap.put("message", "userName already in use please try again");
+                returningHashMap.put("message", "username already in use please try again");
             } else {
                 e.printStackTrace();
             }
@@ -125,7 +126,7 @@ public class UserController {
     public Response loginUserWithResponse(@RequestBody HashMap<String, String> map) {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
         try {
-            User userToCheckAgainst = new ObjectMapper().readValue(new Gson().toJson(lo.get("user")), User.class);
+            User userToCheckAgainst = helper.getUser();
             if (userToCheckAgainst == null) {
                 String attemptedPassword = map.get("attemptedPassword");
                 String userName = map.get("userName");
@@ -139,7 +140,7 @@ public class UserController {
                     if (arePasswordsTheSame) {
                         String jsonData = BeanJsonTransformer.singleObjectToJsonStringWithFilters(userToReturn,
                                 "userFilter", JsonFilterConstants.USERS_OPTIONAL_LOGIN_PROPERTIES);
-                        CurrentUser.currentLoggedOnUser = userToReturn;
+
                         return Response.status(202).entity(jsonData).build();
                     } else {
                         returningHashMap.put("message",
@@ -188,14 +189,12 @@ public class UserController {
         try {
             returningHashMap.clear();
             if (id != null) {
-                User userToCheck = new ObjectMapper()
-                        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                        .readValue(new Gson().toJson(lo.get("user")), User.class);
+                User userToCheck = helper.getUser();
                 if (userToCheck != null && userToCheck.getId() == id) {
                     returningHashMap.put("message", "success,you have been logged out");
                     // there seems not to be a delete for the value operations so setting to null is
                     // the only choice here.
-                    lo.set("user", null);
+                    helper.setUser(null);
                 } else {
                     throw new Exception();
                 }
@@ -211,15 +210,4 @@ public class UserController {
         }
     }
 
-    // method to get the necesseary filters for the jsonConstants
-    private HashMap<String, HashSet<String>> getNecessaryConstants() {
-        HashMap<String, HashSet<String>> jsonFilterHashMap = new HashMap<String, HashSet<String>>();
-        jsonFilterHashMap.put(JsonFilterNameConstants.USERS_FILTER_NAME, JsonFilterConstants.USERS_REQUIRED_PROPERTIES);
-        jsonFilterHashMap.put(JsonFilterNameConstants.EMAIL_ACCOUNT_FILTER_NAME,
-                JsonFilterConstants.EMAILACCOUNTS_ALL_PROPERTIES);
-        jsonFilterHashMap.put(JsonFilterNameConstants.EMAIL_FILTER_NAME, JsonFilterConstants.EMAIL_REQUIRED_PROPERTIES);
-        jsonFilterHashMap.put(JsonFilterNameConstants.USER_FOLDERS_FILTER_NAME,
-                JsonFilterConstants.USER_FOLDER_REQUIRED_PROPERTIES);
-        return jsonFilterHashMap;
-    }
 }

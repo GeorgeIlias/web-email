@@ -4,17 +4,17 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import george.javawebemail.Controllers.Helper.RedisHelper;
 import george.javawebemail.Entities.Attachment;
 import george.javawebemail.Entities.Email;
 import george.javawebemail.Entities.User;
-import george.javawebemail.Utilities.CurrentUser;
 import george.javawebemail.repositories.AttachmentRepository;
 import george.javawebemail.repositories.EmailRepository;
 import javassist.tools.rmi.ObjectNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
-
 
 @Service
 public class AttachmentService implements IAttachmentService {
@@ -24,6 +24,9 @@ public class AttachmentService implements IAttachmentService {
 
   @Autowired
   private EmailRepository emailRepoObject;
+
+  @Autowired
+  private RedisHelper redisHelper;
 
   @Override
   public List<Attachment> findAll() {
@@ -76,7 +79,7 @@ public class AttachmentService implements IAttachmentService {
       Attachment givenAttachment = attachmentRepoObject.findById(attachmentId).get();
       if (givenAttachment != null) {
         User attachmentUser = givenAttachment.getAttached().getUserSent();
-        if (attachmentUser == CurrentUser.currentLoggedOnUser) {
+        if (attachmentUser == redisHelper.getUser()) {
           attachmentRepoObject.delete(givenAttachment);
           emailRepoObject.save(givenAttachment.getAttached());
           pairToReturn = new ImmutablePair<>(true, "the attachment was deleted");

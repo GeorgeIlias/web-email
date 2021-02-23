@@ -17,14 +17,15 @@ import george.javawebemail.Utilities.*;
 
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.mail.MessagingException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
@@ -78,8 +79,9 @@ public class EmailController<T extends Object> {
             if (currentUser != null) {
                 List<Email> allEmailsAsked = emailServiceObject.findEmailsByEmailIdAndUser(id, currentUser);
 
-                String jsonStringEmailsToSendToFront = BeanJsonTransformer
-                        .multipleObjectsToJsonStringWithFilters(allEmailsAsked, returnTypicalPropertiesForEmail());
+                String jsonStringEmailsToSendToFront = BeanJsonTransformer.multipleObjectsToJsonStringWithFilters(
+                        allEmailsAsked,
+                        PropertyReturnTypesForControllers.EmailControllerProperties.returnTypicalPropertiesForEmail());
 
                 return Response.status(200).entity(jsonStringEmailsToSendToFront).type(MediaType.APPLICATION_JSON)
                         .build();
@@ -124,7 +126,8 @@ public class EmailController<T extends Object> {
             try {
                 List<Email> listOfExistingEmails = emailServiceObject.findAllByUSer(currentLoggedInUser.getId());
                 String jsonEmails = BeanJsonTransformer.listMultipleObjectToJsonStringWithMultipleFilters(
-                        listOfExistingEmails, returnTypicalPropertiesForEmail());
+                        listOfExistingEmails,
+                        PropertyReturnTypesForControllers.EmailControllerProperties.returnTypicalPropertiesForEmail());
                 return Response.status(returningStatusNumber).entity(jsonEmails).type(MediaType.APPLICATION_JSON)
                         .build();
             } catch (Exception e) {
@@ -164,7 +167,7 @@ public class EmailController<T extends Object> {
                 // TODO find out a better way to get the user from the sending form
                 Email emailToReturn = emailServiceObject.save(emailToSave);
                 String jsonStringToReturn = BeanJsonTransformer.multipleObjectsToJsonStringWithFilters(emailToReturn,
-                        returnTypicalPropertiesForEmail());
+                        PropertyReturnTypesForControllers.EmailControllerProperties.returnTypicalPropertiesForEmail());
                 return Response.status(statusNumber).entity(jsonStringToReturn).type(MediaType.APPLICATION_JSON)
                         .build();
             }
@@ -189,28 +192,33 @@ public class EmailController<T extends Object> {
      * method to receive emails from the email service that the client is using i.e
      * gmail/yahoo/hotmail etc.
      * 
+     * 02/21 added folder names for the actual folder repository that will be added.
+     * 
      * @author gIlias
-     * @param userId
+     * @param folderName
      * @param emailAccountId
      * @return
      */
     @RequestMapping(value = "/getEmailsFromEmailAccountService", method = RequestMethod.GET)
-    public Response getEmailsFromEmailAccountService(@RequestParam Long userId, @RequestParam Long emailAccountId) {
+    public Response getEmailsFromEmailAccountService(@RequestParam Long emailAccountId,
+            @RequestParam(required = false, defaultValue = "null") String folderName) {
         HashMap<String, String> returningHashMap = new HashMap<String, String>();
         int statusNumber = 200;
         // defaults to inbox, will add a feature for changing the folders later
         String inboxString = "inbox";
-
+        if (folderName != "null") {
+            inboxString = folderName;
+        }
         try {
-            User sentUserId = userServiceObject.findById(userId);
-            if (sentUserId != null) {
+            if (getUserFromRedis() != null) {
                 EmailAccount emailAccountToGetItemsFrom = emailAccountServiceObject
                         .findEmaillAcountById(emailAccountId);
                 if (emailAccountToGetItemsFrom != null) {
                     List<Email> returningEmails = Receive.getEmailsFromInboxFolder(emailAccountToGetItemsFrom,
                             inboxString);
                     String emailJson = BeanJsonTransformer.listMultipleObjectToJsonStringWithMultipleFilters(
-                            returningEmails, returnTypicalPropertiesForEmail());
+                            returningEmails, PropertyReturnTypesForControllers.EmailControllerProperties
+                                    .returnTypicalPropertiesForEmail());
                     statusNumber = 200;
                     return Response.status(statusNumber).entity(emailJson).type(MediaType.APPLICATION_JSON).build();
                 }
@@ -232,20 +240,27 @@ public class EmailController<T extends Object> {
         return Response.status(statusNumber).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
     }
 
-    private HashMap<String, HashSet<String>> returnTypicalPropertiesForEmail() {
-        HashMap<String, HashSet<String>> filterHashAndSet = new HashMap<String, HashSet<String>>();
-        filterHashAndSet.put(JsonFilterNameConstants.EMAIL_FILTER_NAME, JsonFilterConstants.EMAIL_REQUIRED_PROPERTIES);
-        filterHashAndSet.put(JsonFilterNameConstants.USERS_FILTER_NAME,
-                JsonFilterConstants.USERS_OPTIONAL_UNIDENTIFIABLE_PROPERTIES);
-        filterHashAndSet.put(JsonFilterNameConstants.CC_FILTER_NAME, JsonFilterConstants.CC_REQUIRED_PROPERTIES);
-        filterHashAndSet.put(JsonFilterNameConstants.BCC_FILTER_NAME, JsonFilterConstants.BCC_REQUIRED_PROPERTIES);
-        filterHashAndSet.put(JsonFilterNameConstants.RECEIVERS_FILTER_NAME,
-                JsonFilterConstants.RECEIVERS_REQUIRED_PROPERTIES);
-        filterHashAndSet.put(JsonFilterNameConstants.ATTACHMENT_FILTER_NAME,
-                JsonFilterConstants.ATTACHMENT_REQUIRED_PROPERTIES);
-        filterHashAndSet.put(JsonFilterNameConstants.SENDER_FILTER_NAME, JsonFilterConstants.SENDERS_ALL_PROPERTIES);
-
-        return filterHashAndSet;
+    /**
+     * method to use the priate method instead of continuously re-writting this code
+     * 
+     * @author gIlias
+     * @return
+     * @throws JsonMappingException
+     * @throws JsonProcessingException
+     */
+    private User getUserFromRedis() {
+        User currentUser = null;
+        try {
+            currentUser = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    .readValue(new Gson().toJson(lo.get("user")), User.class);
+        } catch (JsonMappingException jme) {
+            jme.printStackTrace();
+        } catch (JsonProcessingException jpe) {
+            jpe.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return currentUser;
 
     }
 

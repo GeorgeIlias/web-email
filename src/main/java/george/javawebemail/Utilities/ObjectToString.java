@@ -15,13 +15,8 @@ public class ObjectToString {
      * @author gIlias
      */
     public static String getUserStringForStorage(User userToSend) {
-
-        HashMap<String, HashSet<String>> filterToAdd = new HashMap<String, HashSet<String>>();
-        filterToAdd.put(JsonFilterNameConstants.USERS_FILTER_NAME, JsonFilterConstants.USERS_ALL_PROPERTIES);
-        filterToAdd.put(JsonFilterNameConstants.EMAIL_ACCOUNT_FILTER_NAME,
-                JsonFilterConstants.EMAILACCOUNTS_ALL_PROPERTIES);
-        filterToAdd.put(JsonFilterNameConstants.EMAIL_FILTER_NAME, JsonFilterConstants.EMAIL_ALL_PROPERTIES);
-        String userString = BeanJsonTransformer.multipleObjectsToJsonStringWithFilters(userToSend, filterToAdd);
+        String userString = BeanJsonTransformer.multipleObjectsToJsonStringWithFilters(userToSend,
+                PropertyReturnTypesForControllers.UserControllerProperties.returnNewUserProperties());
         return userString;
 
     }

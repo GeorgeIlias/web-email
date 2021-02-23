@@ -2,23 +2,78 @@ package george.javawebemail.Service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import george.javawebemail.Entities.User;
 import george.javawebemail.Entities.UserFolders;
+import george.javawebemail.Exceptions.NoDatabaseObject;
+import george.javawebemail.repositories.UserFoldersRepository;
 
-/**
- * interface to give the implementation guide lines on what the methods needed
- * are
- * 
- * @author gIlias
- */
-public interface UserFoldersService {
+public class UserFoldersService implements IUserFoldersService {
 
-    public List<UserFolders> findByUser(User user);
+    @Autowired
+    private UserFoldersRepository userFoldersRepositoryEntity;
 
-    public UserFolders save(UserFolders entityToSave);
+    @Override
+    public List<UserFolders> findByUser(User user) {
+        try {
+            List<UserFolders> folderList = userFoldersRepositoryEntity.findByUser(user);
+            if (folderList == null) {
+                throw new NoDatabaseObject("the object was null");
+            } else {
+                return folderList;
+            }
+        } catch (NoDatabaseObject ndo) {
+            ndo.printStackTrace();
+            throw ndo;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 
-    public Boolean delete(User userToDelete);
+    @Override
+    public UserFolders save(UserFolders entityToSave) {
+        try {
 
-    public void delete(Long id);
+            UserFolders entityToReturn = userFoldersRepositoryEntity.save(entityToSave);
+
+            if (entityToReturn == null) {
+                throw new NoDatabaseObject("The object was not found");
+            } else {
+                return entityToReturn;
+            }
+        } catch (NoDatabaseObject ndo) {
+            ndo.printStackTrace();
+            throw ndo;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @Override
+    public Boolean delete(User userToDelete) {
+        boolean isBoolean = true;
+        try {
+            userFoldersRepositoryEntity.delete(userToDelete);
+            return isBoolean;
+        } catch (Exception e) {
+            isBoolean = false;
+            e.printStackTrace();
+            return isBoolean;
+        }
+
+    }
+
+    @Override
+    public void delete(Long id) {
+        try {
+            userFoldersRepositoryEntity.delete(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 
 }

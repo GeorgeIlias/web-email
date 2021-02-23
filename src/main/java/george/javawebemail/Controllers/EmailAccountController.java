@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import george.javawebemail.ConstantFilters.JsonFilterConstants;
 import george.javawebemail.ConstantFilters.JsonFilterNameConstants;
+import george.javawebemail.Utilities.PropertyReturnTypesForControllers;
 import george.javawebemail.Entities.EmailAccount;
 import george.javawebemail.Entities.User;
 import george.javawebemail.Exceptions.IncorrectDatabaseResponse;
@@ -59,8 +60,9 @@ public class EmailAccountController {
                         userId);
 
                 if (returningEmailAccount != null) {
-                    String returnString = BeanJsonTransformer
-                            .multipleObjectsToJsonStringWithFilters(returningEmailAccount, getReturnsDefault());
+                    String returnString = BeanJsonTransformer.multipleObjectsToJsonStringWithFilters(
+                            returningEmailAccount, PropertyReturnTypesForControllers.EmailAccountControllerProperties
+                                    .returnTypicalPropertiesForEmailAccount());
 
                     return Response.status(statusNumber).entity(returnString).type(MediaType.APPLICATION_JSON).build();
                 }
@@ -101,7 +103,8 @@ public class EmailAccountController {
                 EmailAccount accountToReturn = emailAccountServiceObject.saveEmailAccount(accountToSave);
                 if (accountToReturn != null) {
                     String stringToReturn = BeanJsonTransformer.multipleObjectsToJsonStringWithFilters(accountToReturn,
-                            getReturnsDefault());
+                            PropertyReturnTypesForControllers.EmailAccountControllerProperties
+                                    .returnTypicalPropertiesForEmailAccount());
                     return Response.status(statusNumber).entity(stringToReturn).type(MediaType.APPLICATION_JSON)
                             .build();
 
@@ -166,17 +169,4 @@ public class EmailAccountController {
         return Response.status(statusNumber).entity(returningHashMap).type(MediaType.APPLICATION_JSON).build();
     }
 
-    //method to return the default/required filters for the given objects
-    private HashMap<String, HashSet<String>> getReturnsDefault() {
-        HashMap<String, HashSet<String>> returningObject = new HashMap<String, HashSet<String>>();
-        returningObject.put(JsonFilterNameConstants.USERS_FILTER_NAME, JsonFilterConstants.USERS_ALL_PROPERTIES);
-        return returningObject;
-    }
-
-    //method to return the optional filters for the given objects
-    private HashMap<String, HashSet<String>> getReturnsOptionals() {
-        HashMap<String, HashSet<String>> returningObject = new HashMap<String, HashSet<String>>();
-        returningObject.put(JsonFilterNameConstants.USERS_FILTER_NAME, JsonFilterConstants.USERS_OPTIONAL_PROPERTIES);
-        return returningObject;
-    }
 }
