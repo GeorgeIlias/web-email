@@ -1,10 +1,5 @@
 package george.javawebemail.Utilities;
 
-import java.util.HashMap;
-import java.util.HashSet;
-
-import george.javawebemail.ConstantFilters.JsonFilterConstants;
-import george.javawebemail.ConstantFilters.JsonFilterNameConstants;
 import george.javawebemail.Entities.User;
 
 public class ObjectToString {

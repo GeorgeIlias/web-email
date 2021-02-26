@@ -5,7 +5,6 @@
 
 package george.javawebemail.Controllers;
 
-import javax.annotation.Resource;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -14,7 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,14 +22,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import george.javawebemail.Utilities.BeanJsonTransformer;
-import george.javawebemail.Utilities.ObjectToString;
 import george.javawebemail.Utilities.PlainTextToHashUtil;
 import george.javawebemail.Utilities.PropertyReturnTypesForControllers;
 import george.javawebemail.ConstantFilters.JsonFilterConstants;
-import george.javawebemail.ConstantFilters.JsonFilterNameConstants;
 import george.javawebemail.Controllers.Helper.RedisHelper;
 import george.javawebemail.Entities.User;
 import george.javawebemail.Service.UserService;

@@ -21,7 +21,6 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
@@ -31,7 +30,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 @EntityScan(basePackages = { "george.javawebemail.Entities" })
 @EnableJpaRepositories(basePackages = { "george.javawebemail.repositories" })
 @ComponentScan(basePackages = { "george.javawebemail.Service" })
-@ComponentScan(basePackages = { "george.javawebemail.Controllers" })
+@ComponentScan(basePackages = { "george.javawebemail.Controllers", "george.javawebemail.Controllers.Helper" })
 @EnableRedisHttpSession
 public class ServingWebContentApplication implements WebApplicationInitializer {
 
@@ -68,18 +67,7 @@ public class ServingWebContentApplication implements WebApplicationInitializer {
 
 	}
 
-	/**
-	 * command to turn on redis FIX CONNECTION BIND PROPERLY docker machine ip is
-	 * 192.168.99.100 <--- this is specifically for windows 10 machines running on
-	 * windows 10 home (works with localhost now was change in virtual box)
-	 * 
-	 * 
-	 * 
-	 * 
-	 * @return
-	 */
 	@Bean // (name = "listOperationsCaster")
-
 	public RedisTemplate<String, String> redisTemplate() {
 		RedisTemplate<String, String> rt = new RedisTemplate<String, String>();
 
@@ -89,7 +77,7 @@ public class ServingWebContentApplication implements WebApplicationInitializer {
 	}
 
 	@Bean
-	
+
 	public ValueOperations<String, String> valueOperations() {
 		ValueOperations<String, String> vo = redisTemplate().opsForValue();
 		return vo;

@@ -13,8 +13,6 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.integration.redis.support.RedisHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,7 +27,6 @@ import george.javawebemail.Service.AttachmentService;
 import george.javawebemail.Service.EmailService;
 import george.javawebemail.Service.UserService;
 import george.javawebemail.Utilities.BeanJsonTransformer;
-import george.javawebemail.ConstantFilters.JsonFilterConstants;
 import george.javawebemail.Controllers.Helper.RedisHelper;
 import george.javawebemail.Utilities.PropertyReturnTypesForControllers;
 
@@ -49,10 +46,6 @@ public class AttachmentController {
     @Autowired
     private RedisHelper redisHelper;
 
-    // TODO fix the find by id and get a given user, will probably be a weird query
-    // to get working
-
-    // TODO fix this to not user currentLoggedOnUser
     /**
      * Method to get a given attachemnt based on it's id and the user that is
      * currently logged into
