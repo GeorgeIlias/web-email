@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.SessionScope;
 
 import george.javawebemail.Entities.User;
 import george.javawebemail.Utilities.ObjectToString;
@@ -18,6 +19,7 @@ import george.javawebemail.Utilities.ObjectToString;
  * @author gIlias
  */
 @Component
+@SessionScope
 public class RedisHelper {
 
     @Autowired
@@ -35,7 +37,9 @@ public class RedisHelper {
     public User getUser() {
         User returningUser = null;
         try {
-            returningUser = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            returningUser = new ObjectMapper()
+                    .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
+                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     .readValue(new Gson().toJson(lo.get("user")), User.class);
         } catch (JsonProcessingException e) {
             e.printStackTrace();

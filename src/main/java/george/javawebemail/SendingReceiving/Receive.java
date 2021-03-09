@@ -1,6 +1,11 @@
 /**
  * Class to receive an email, map it to an object and send it back to the client
  * 
+ * 
+ * **needs testing***
+ * 
+ * 
+ * 
  * @author gIlias
  */
 package george.javawebemail.SendingReceiving;
@@ -34,6 +39,8 @@ public class Receive {
     /**
      * Method to login and get the emails from the imap server using specifically a
      * gmail account
+     * 
+     *
      * 
      * 
      * @author gIlias

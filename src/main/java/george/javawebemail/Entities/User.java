@@ -16,6 +16,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import org.apache.tomcat.util.json.ParseException;
 
@@ -25,6 +26,7 @@ import lombok.Data;
 @Entity
 @JsonFilter("userFilter")
 @Table(name = "users")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
 
     @Column(name = "user_name", unique = true)

@@ -65,9 +65,8 @@ public class UserController {
             if (userParameters.get("portChosen") == null) {
                 userParameters.put("portChosen", new String("25"));
             }
-            String passwordHash = PlainTextToHashUtil
-                    .addSaltAndConvert(userParameters.get("passwordUnHash").toString());
-            userParameters.remove("passwordUnHash");
+            String passwordHash = PlainTextToHashUtil.addSaltAndConvert(userParameters.get("passwordHash").toString());
+            userParameters.remove("passwordHash");
             userParameters.put("passwordHash", passwordHash);
 
             User userToCheckAgainst = userServiceObject

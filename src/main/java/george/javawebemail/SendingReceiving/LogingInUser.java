@@ -1,3 +1,4 @@
+
 package george.javawebemail.SendingReceiving;
 
 import java.util.Properties;
@@ -10,7 +11,7 @@ import george.javawebemail.Entities.EmailAccount;
 import george.javawebemail.Entities.User;
 
 /**
- * static imap login to use
+ * static imap login to use email service (designed to work with gmail for now)
  * 
  * @author gIlias
  */

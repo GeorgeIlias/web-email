@@ -1,5 +1,6 @@
 package george.javawebemail.Utilities;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +20,7 @@ public class BeanJsonTransformer {
             objMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             SimpleFilterProvider sfp = new SimpleFilterProvider();
             sfp.addFilter(filterName, SimpleBeanPropertyFilter.filterOutAllExcept(listOfFilterProperties));
+            objMapper.setDateFormat(new SimpleDateFormat("dd/MM/yyyy"));
             objMapper.setFilterProvider(sfp);
             String jsonData = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(objectToTurnToJson);
             return jsonData;
@@ -37,6 +39,7 @@ public class BeanJsonTransformer {
             for (Entry<String, HashSet<String>> item : filterHashAndMap.entrySet()) {
                 sfp.addFilter(item.getKey(), SimpleBeanPropertyFilter.filterOutAllExcept(item.getValue()));
             }
+            objMapper.setDateFormat(new SimpleDateFormat("dd/MM/yyyy"));
             objMapper.setFilterProvider(sfp);
             return objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(objectsToTurnToJson);
         } catch (Exception e) {
