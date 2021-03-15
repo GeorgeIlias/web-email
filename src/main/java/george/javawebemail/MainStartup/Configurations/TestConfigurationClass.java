@@ -1,11 +1,13 @@
-package george.javawebemail.MainStartup;
+package george.javawebemail.MainStartup.Configurations;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 import javax.sql.DataSource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -15,8 +17,10 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -36,89 +40,74 @@ import org.springframework.web.servlet.DispatcherServlet;
  * For tests change the application properties to create-drop and testserver
  */
 
+@Profile("test")
 @EnableAutoConfiguration
-@SpringBootApplication
+@SpringBootConfiguration
 @SpringSessionRedisConnectionFactory
 @EntityScan(basePackages = { "george.javawebemail.Entities" })
 @EnableJpaRepositories(basePackages = { "george.javawebemail.repositories" })
 @ComponentScan(basePackages = { "george.javawebemail.Service" })
 @ComponentScan(basePackages = { "george.javawebemail.Controllers", "george.javawebemail.Controllers.Helper" })
 @EnableRedisHttpSession
-public class ServingWebContentApplication implements WebApplicationInitializer {
+public class TestConfigurationClass {
 
-	public static void main(String[] args) {
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder.build();
+    }
 
-		SpringApplication.run(ServingWebContentApplication.class, args);
-	}
+    @Bean
+    public LettuceConnectionFactory connectionFactory() {
+        LettuceConnectionFactory lcf = new LettuceConnectionFactory(
+                new RedisStandaloneConfiguration("localhost", 6379));
 
-	@Override
-	public void onStartup(ServletContext servletContext) throws ServletException {
-		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-		context.setConfigLocation("george.javawebemail.Controllers");
+        return lcf;
 
-		servletContext.addListener(new ContextLoaderListener(context));
+    }
 
-		ServletRegistration.Dynamic dispatcher = servletContext.addServlet("dispatcher",
-				new DispatcherServlet(context));
+    @Bean // (name = "listOperationsCaster")
+    // @SessionScope
+    public RedisTemplate<String, String> redisTemplate() {
+        RedisTemplate<String, String> rt = new RedisTemplate<String, String>();
 
-		dispatcher.setLoadOnStartup(1);
-		dispatcher.addMapping("/");
-	}
+        rt.setConnectionFactory(connectionFactory());
 
-	@Bean
-	public RestTemplate restTemplate(RestTemplateBuilder builder) {
-		return builder.build();
-	}
+        return rt;
+    }
 
-	@Bean
-	public LettuceConnectionFactory connectionFactory() {
-		LettuceConnectionFactory lcf = new LettuceConnectionFactory(
-				new RedisStandaloneConfiguration("localhost", 6379));
+    @Bean
+    // @SessionScope
+    public ValueOperations<String, String> valueOperations() {
+        ValueOperations<String, String> vo = redisTemplate().opsForValue();
+        return vo;
+    }
 
-		return lcf;
+    // @Autowired
+    // public DataSource dataSource;
 
-	}
+    // @Primary
+    // @Bean(name = "dataSource")
+    // @ConfigurationProperties(prefix = "spring")
+    // public DataSourceProperties mainDataSourceProperties() {
+    // return new DataSourceProperties();
+    // }
 
-	@Bean // (name = "listOperationsCaster")
-	// @SessionScope
-	public RedisTemplate<String, String> redisTemplate() {
-		RedisTemplate<String, String> rt = new RedisTemplate<String, String>();
+    // @Bean
+    // @Primary
+    // public DataSource dataSource() {
+    // return mainDataSourceProperties().initializeDataSourceBuilder().build();
+    // }
 
-		rt.setConnectionFactory(connectionFactory());
+    // // beginning of secondary data source
+    // @Bean
+    // @ConfigurationProperties(prefix = "test.prop")
+    // public DataSourceProperties secondaryDataSourceProperties() {
+    // return new DataSourceProperties();
+    // }
 
-		return rt;
-	}
-
-	@Bean
-	// @SessionScope
-	public ValueOperations<String, String> valueOperations() {
-		ValueOperations<String, String> vo = redisTemplate().opsForValue();
-		return vo;
-	}
-
-	// @Primary
-	// @Bean(name = "dataSource")
-	// @ConfigurationProperties(prefix = "spring")
-	// public DataSourceProperties mainDataSourceProperties() {
-	// return new DataSourceProperties();
-	// }
-
-	// @Bean
-	// @Primary
-	// public DataSource dataSource() {
-	// return mainDataSourceProperties().initializeDataSourceBuilder().build();
-	// }
-
-	// // beginning of secondary data source
-	// @Bean
-	// @ConfigurationProperties(prefix = "test.prop")
-	// public DataSourceProperties secondaryDataSourceProperties() {
-	// return new DataSourceProperties();
-	// }
-
-	// @Bean
-	// public DataSource secondaryDataSource() {
-	// return secondaryDataSourceProperties().initializeDataSourceBuilder().build();
-	// }
+    // @Bean
+    // public DataSource secondaryDataSource() {
+    // return secondaryDataSourceProperties().initializeDataSourceBuilder().build();
+    // }
 
 }

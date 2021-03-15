@@ -21,27 +21,32 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
+import org.aspectj.lang.annotation.Before;
 import org.json.JSONObject;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.json.JsonParserFactory;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.event.annotation.BeforeTestMethod;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import george.javawebemail.Entities.User;
-import george.javawebemail.MainStartup.ServingWebContentApplication;
+import george.javawebemail.MainStartup.Configurations.TestConfigurationClass;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -52,12 +57,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
+@ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = { ServingWebContentApplication.class })
-@WebAppConfiguration
+@SpringBootTest
+@ContextConfiguration(classes = { TestConfigurationClass.class })
+// @WebAppConfiguration
 @TestInstance(Lifecycle.PER_CLASS)
-@TestPropertySource("classpath:config/MockData.properties")
-public class UserTest {
+@TestPropertySource("/config/MockData.properties")
+public class TestUser {
 
     @Autowired
     private WebApplicationContext context;
@@ -73,9 +80,8 @@ public class UserTest {
 
     HashMap<String, String> userNameHashMap;
 
-    @BeforeAll
+    @BeforeEach
     public void init() {
-        System.out.println(stringToCreateUser);
         mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
 
         String comparedString = stringToCreateUser;
@@ -111,7 +117,7 @@ public class UserTest {
      */
     @Test
     @Rollback(true)
-    public void createUserFromControllerTest() {
+    public void testCreateUserFromController() {
         try {
             MockHttpServletResponse mockMvcResponse = mockMvc
                     .perform(put("/api/user/createUser").content(new Gson().toJson(userHashMap))
@@ -122,12 +128,15 @@ public class UserTest {
             String statusCode = returnedJsonObject.get("status").toString();
 
             if (Integer.parseInt(statusCode) == 200) {
+                JsonParser jsonParserToUser = new JsonFactory()
+                        .createParser(returnedJsonObject.get("entity").toString());
+
                 User userComparingToControl = new ObjectMapper().setDateFormat(new SimpleDateFormat("dd/MM/yyyy"))
                         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                        .readValue(new Gson().toJson(returnedJsonObject.get("entity")), User.class);
+                        .readValue(jsonParserToUser, User.class);
 
                 assertEquals(userComparingToControl.getUserName(), userToCheckAgainst.getUserName(),
-                        "the test has passed and the user seems to be the same.");
+                        "the test has failed, the users are not the same");
 
             } else {
                 fail(new JSONObject(returnedJsonObject.get("entity").toString()).getString("message"));
@@ -152,12 +161,9 @@ public class UserTest {
      */
     @Test
     @Rollback(true)
-    public void loginFromCreatedUser() {
+    public void testLoginFromCreatedUser() {
 
         try {
-            mockMvc.perform(put("/api/user/createUser").content(new Gson().toJson(userHashMap))
-                    .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
-
             MockHttpServletResponse mockMvcResponse = mockMvc
                     .perform(post("/api/user/loginRequest")
                             .content(new ObjectMapper().writeValueAsString(userNameHashMap))
@@ -169,9 +175,12 @@ public class UserTest {
 
                 fail(new JSONObject(returnedJsonObject.getString("entity").toString()).getString("message"));
             } else {
-                User userComparedToControl = new ObjectMapper()
-                        .readValue(new Gson().toJson(returnedJsonObject.getString("entity")), User.class);
-                assertEquals(userComparedToControl.getUserName(), userToCheckAgainst.getUserName());
+                JsonParser jsonParserToUser = new JsonFactory()
+                        .createParser(returnedJsonObject.get("entity").toString());
+                User userComparedToControl = new ObjectMapper().readValue(jsonParserToUser, User.class);
+
+                assertEquals(userComparedToControl.getUserName(), userToCheckAgainst.getUserName(),
+                        "the users are not the same and the test has failed");
             }
         } catch (Exception e) {
             fail("An exception has been thrown, check the stack trace for more information.");
@@ -189,9 +198,9 @@ public class UserTest {
      * 
      * @author gIlias
      */
-    @Test
+    // @Test
     @Rollback(true)
-    public void logoutTestForSpring() {
+    public void testLogoutTestForSpring() {
         try {
             // creates the user
             mockMvc.perform(put("/api/user/createUser").content(new Gson().toJson(userHashMap))
