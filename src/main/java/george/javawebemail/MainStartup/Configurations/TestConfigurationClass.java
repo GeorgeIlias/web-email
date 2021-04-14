@@ -65,7 +65,7 @@ public class TestConfigurationClass {
 
     }
 
-    @Bean // (name = "listOperationsCaster")
+    @Bean 
     // @SessionScope
     public RedisTemplate<String, String> redisTemplate() {
         RedisTemplate<String, String> rt = new RedisTemplate<String, String>();
@@ -81,33 +81,4 @@ public class TestConfigurationClass {
         ValueOperations<String, String> vo = redisTemplate().opsForValue();
         return vo;
     }
-
-    // @Autowired
-    // public DataSource dataSource;
-
-    // @Primary
-    // @Bean(name = "dataSource")
-    // @ConfigurationProperties(prefix = "spring")
-    // public DataSourceProperties mainDataSourceProperties() {
-    // return new DataSourceProperties();
-    // }
-
-    // @Bean
-    // @Primary
-    // public DataSource dataSource() {
-    // return mainDataSourceProperties().initializeDataSourceBuilder().build();
-    // }
-
-    // // beginning of secondary data source
-    // @Bean
-    // @ConfigurationProperties(prefix = "test.prop")
-    // public DataSourceProperties secondaryDataSourceProperties() {
-    // return new DataSourceProperties();
-    // }
-
-    // @Bean
-    // public DataSource secondaryDataSource() {
-    // return secondaryDataSourceProperties().initializeDataSourceBuilder().build();
-    // }
-
 }

@@ -9,6 +9,7 @@ package george.javawebemail.ApiTests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import javax.validation.constraints.AssertFalse;
@@ -22,35 +23,28 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
-import org.aspectj.lang.annotation.Before;
 import org.json.JSONObject;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.json.JsonParserFactory;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.event.annotation.BeforeTestMethod;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import george.javawebemail.Entities.User;
 import george.javawebemail.MainStartup.Configurations.TestConfigurationClass;
+import george.javawebemail.Utilities.UserTestUtilities;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -68,6 +62,9 @@ public class TestUser {
 
     @Autowired
     private WebApplicationContext context;
+
+    // @Autowired
+    // private RedisHelper helper;
 
     private MockMvc mockMvc;
 
@@ -119,6 +116,7 @@ public class TestUser {
     @Rollback(true)
     public void testCreateUserFromController() {
         try {
+
             MockHttpServletResponse mockMvcResponse = mockMvc
                     .perform(put("/api/user/createUser").content(new Gson().toJson(userHashMap))
                             .contentType(MediaType.APPLICATION_JSON))
@@ -134,6 +132,8 @@ public class TestUser {
                 User userComparingToControl = new ObjectMapper().setDateFormat(new SimpleDateFormat("dd/MM/yyyy"))
                         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                         .readValue(jsonParserToUser, User.class);
+
+                // helper.setUser(null);
 
                 assertEquals(userComparingToControl.getUserName(), userToCheckAgainst.getUserName(),
                         "the test has failed, the users are not the same");
@@ -164,13 +164,12 @@ public class TestUser {
     public void testLoginFromCreatedUser() {
 
         try {
-            MockHttpServletResponse mockMvcResponse = mockMvc
-                    .perform(post("/api/user/loginRequest")
-                            .content(new ObjectMapper().writeValueAsString(userNameHashMap))
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk()).andReturn().getResponse();
 
-            JSONObject returnedJsonObject = new JSONObject(mockMvcResponse.getContentAsString());
+            // create user request, uses the utilities method that was created for this
+            MockHttpServletResponse createMockMvcResponseUser = UserTestUtilities.registerUserForTests(userHashMap,
+                    mockMvc);
+
+            JSONObject returnedJsonObject = new JSONObject(createMockMvcResponseUser.getContentAsString());
             if (Integer.parseInt(returnedJsonObject.getString("status").toString()) != 200) {
 
                 fail(new JSONObject(returnedJsonObject.getString("entity").toString()).getString("message"));
@@ -181,6 +180,10 @@ public class TestUser {
 
                 assertEquals(userComparedToControl.getUserName(), userToCheckAgainst.getUserName(),
                         "the users are not the same and the test has failed");
+
+                // helper.setUser(null);
+                assertTrue(true, "The test for loging in has passed, all assertions have passed");
+
             }
         } catch (Exception e) {
             fail("An exception has been thrown, check the stack trace for more information.");
@@ -202,13 +205,32 @@ public class TestUser {
     @Rollback(true)
     public void testLogoutTestForSpring() {
         try {
-            // creates the user
-            mockMvc.perform(put("/api/user/createUser").content(new Gson().toJson(userHashMap))
-                    .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+           // helper.setUser(null);
+            // create user request, uses the utilities method that was created for this
+            MockHttpServletResponse createMockMvcResponseUser = UserTestUtilities.registerUserForTests(userHashMap,
+                    mockMvc);
 
+            // login user request, uses the utilities method that was created for this
+            MockHttpServletResponse mockMvcResponse = UserTestUtilities.LoginUser(userNameHashMap, mockMvc);
+
+            JSONObject returnedJsonObject = new JSONObject(mockMvcResponse.getContentAsString());
+
+            if (Integer.parseInt(returnedJsonObject.getString("status").toString()) != 200) {
+
+                fail(new JSONObject(returnedJsonObject.getString("entity").toString()).getString("message"));
+            } else {
+                JsonParser jsonParserToUser = new JsonFactory()
+                        .createParser(returnedJsonObject.get("entity").toString());
+                User userComparedToControl = new ObjectMapper().readValue(jsonParserToUser, User.class);
+
+                assertEquals(userComparedToControl.getUserName(), userToCheckAgainst.getUserName(),
+                        "the users are not the same and the test has failed");
+
+                assertTrue(true, "the test has passed, all assertions have passed as well");
+
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            assertFalse(false);
         }
 
     }

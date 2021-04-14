@@ -1,7 +1,6 @@
 package george.javawebemail.Controllers;
 
 import java.util.HashMap;
-import java.util.HashSet;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -17,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import george.javawebemail.ConstantFilters.JsonFilterConstants;
-import george.javawebemail.ConstantFilters.JsonFilterNameConstants;
 import george.javawebemail.Utilities.PropertyReturnTypesForControllers;
 import george.javawebemail.Entities.EmailAccount;
 import george.javawebemail.Entities.User;

@@ -34,6 +34,13 @@ public class RedisHelper {
 
     }
 
+    /**
+     * get the user from redis and returns it
+     * 
+     * 
+     * @return
+     * @author gIlias
+     */
     public User getUser() {
         User returningUser = null;
         try {
@@ -46,5 +53,4 @@ public class RedisHelper {
         }
         return returningUser;
     }
-
 }
